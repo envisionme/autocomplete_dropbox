@@ -1,0 +1,312 @@
+<?php
+// $Id$
+/**
+ * @file
+ * This module defines a new cck field and widget that provides an autocomplete field with a dropbox for storing multiple values.
+ */
+ if(arg(0) == 'node') { //test to see that the field is displayed otherwise the js is not needed and can create problems with other js
+  drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox').'/autoSuggest/jquery.autoSuggest.js', 'module');
+  drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox').'/autocomplete_dropbox.js', 'module'); // Can be moved to info file if so desired
+  drupal_add_css(drupal_get_path('module', 'autocomplete_dropbox').'/autoSuggest/autoSuggest.css', 'module');
+ }
+ 
+/**
+* Implementation of hook_menu
+* This module uses a custom autocomplete path because we need the term id in addition to the term name
+**/
+function autocomplete_dropbox_menu() {
+  $items = array();
+  $items['autocomplete_dropbox.json'] = array(
+    'title' => 'Dropbox Autocomplete Widget',
+    'page callback' => 'autocomplete_dropbox_autosuggest',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  return $items;
+}
+
+function autocomplete_dropbox_autosuggest() {
+  $data = array();
+  drupal_set_header('Content-type: text/plain; charset: utf-8');
+  $result = db_query("SELECT tid, name FROM {term_data} WHERE LOWER(name) LIKE '%%%s%' AND vid = %d", strtolower($_GET['term']), (int)$_GET['vid']);
+  
+  while($obj = db_fetch_object($result)) {
+    $json = array();
+    $json['value'] = $obj->name;
+    $json['name'] = $obj->name;
+    $json['tid'] = $obj->tid;
+    $data[] = $json;
+  }
+  echo json_encode($data);
+  exit();
+}
+
+//==========================================//
+// DEFINE THE FIELD
+//==========================================//
+
+/**
+* Implementation of hook_field_info().
+*/
+function autocomplete_dropbox_field_info() {
+  return array(
+    'autocomplete_dropbox' => array( // The machine name of the field.
+      'label' => t('Auto Complete Dropbox'), // Human-readable label of field, seen in Manage fields screen.
+      'description' => t('Store multiple items in one field.'), // Description of what type of data the field stores.
+    ),
+  );
+}
+
+/**
+* Implementation of hook_field_settings().
+*/
+function autocomplete_dropbox_field_settings($op, $field) {
+  switch ($op) {
+    case 'form':
+    //Create the settings form for selecting which vocabulary to use for autocompletion
+    $form = array();
+    $form['vocabulary_id'] = array(
+      '#type'   => 'textfield',
+      '#title'  => t('Auto Complete Vocabulary ID'), 
+      '#default_value' => $field['vocabulary_id'] ? $field['vocabulary_id'] : '',
+      '#required' => TRUE,
+      '#description' => t('The id of the vocabulary to be used to populate the autocomplete dropbox suggestions.'),
+    );
+    $form['term_limit'] = array(
+      '#type'   => 'textfield',
+      '#title'  => t('Amount of terms allowed'), 
+      '#default_value' => $field['term_limit'] ? $field['term_limit'] : '',
+      '#required' => TRUE,
+      '#description' => t('The maximum amount of terms allowed to be selected for this field.'),
+    );
+    return $form;
+    case 'database columns':
+    // Define the colums that needs to be created in the database for storing the field data
+      $columns['term_ids'] = array(
+        'type' => 'varchar',
+        'length' => 40,
+        'not null' => FALSE,
+        'sortable' => TRUE,
+        'views' => TRUE,
+      );
+      return $columns;
+    case 'save':
+      return array('vocabulary_id', 'term_limit');
+    
+  }
+}
+
+/**
+* Implementation of hook_field().
+*/
+function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page) {
+  switch ($op) {
+    //~ case 'validate':
+      //~ foreach ($items as $delta => $item) {
+        //~ if (!empty($item['company']) && empty($item['position'])) {
+          //~ form_set_error($item['position'], 'Position cannot be empty. Please provide a position for each job.');
+          //~ }
+        //~ }
+          
+    case 'presave':
+      foreach ($items as $delta => $value) {
+        _autocomplete_dropbox_process($items[$delta], $delta, $field, $node);
+      }
+    break;
+  }
+}
+
+function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
+  
+  //First add all new taxonomy terms to the correct taxonomy
+  
+  //Get the values for the new_terms array
+  $new_tax_terms = array();
+  $new_tax_terms_string = $item['new_terms'];
+  $count_terms = substr_count($new_tax_terms_string, ',');
+  
+  for ($k = 0; $k < $count_terms; $k++) {
+    $term = substr($new_tax_terms_string, 0, strpos($new_tax_terms_string, ','));
+    $new_tax_terms[] = $term;
+    $new_tax_terms_string = substr($new_tax_terms_string, strpos($new_tax_terms_string, ',') + 1);
+  }
+  
+  //Now lets add the new taxonomy terms to the correct taxonomy
+  foreach($new_tax_terms as $new_tax_term) {
+    $newterm = array('vid' => $field['vocabulary_id'], 'name' => $new_tax_term);
+    taxonomy_save_term($newterm);
+  }
+  
+  //Get the values for the saved_tids array
+  $saved_tids = array();
+  $saved_tids_string = $item['saved_tids'];
+  $count_tids = substr_count($saved_tids_string, ',');
+  
+  for ($k = 0; $k < $count_tids; $k++) {
+    $term = substr($saved_tids_string, 0, strpos($saved_tids_string, ','));
+    $saved_tids[] = $term;
+    $saved_tids_string = substr($saved_tids_string, strpos($saved_tids_string, ',') + 1);
+  }
+  
+  //Get the newly added terms and add their id's to the saved_tids before tagging the node with these terms
+  foreach($new_tax_terms as $term) {
+    $returned_terms = taxonomy_get_term_by_name($term);
+    foreach($returned_terms as $aterm) {
+      if($aterm->vid == $field['vocabulary_id']) {
+        $saved_tids[] = $aterm->tid;
+      }
+    }
+  }
+  
+  //Create an array with all the taxonomy terms that needs to be saved
+  $terms_to_save = array();
+  $ids_to_save_string;
+  foreach($saved_tids as $tid) {
+    $term = taxonomy_get_term($tid);
+    $ids_to_save_string .= $tid.',';
+    $node->taxonomy[] = $term;
+  }
+
+  //We save the term ids as well
+  $item['term_ids'] = $ids_to_save_string;
+
+}
+
+/**
+* Implementation of hook_content_is_empty().
+*/
+function autocomplete_dropbox_content_is_empty($item, $field) {
+  if (empty($item['term_ids'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+//==========================================//
+// DEFINING A FORMATTER
+//==========================================//
+
+/**
+* Implementation of hook_theme().
+*/
+function autocomplete_dropbox_theme() {
+  return array(
+    // Themes for the formatters.
+    'autocomplete_dropbox_formatter_default' => array(
+      'arguments' => array('element' => NULL),
+    ),
+  );
+}
+
+/**
+* Implementation of hook_field_formatter_info().
+*/
+function autocomplete_dropbox_field_formatter_info() {
+  return array(
+    // The machine name of the formatter.
+    'default' => array(
+      // The human-readable label shown on the Display fields screen.
+      'label' => t('Default'),
+      // An array of the field types this formatter can be used on.
+      'field types' => array('autocomplete_dropbox'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+  );
+}
+
+/**
+* Theme function for 'default' companyfield formatter.
+*/
+function theme_autocomplete_dropbox_formatter_default($element) {
+  //Used to theme the standard output of the field
+  $output = $element['#item']['term_ids'];
+  return $output;
+}
+
+//==========================================//
+// DEFINING A WIDGET
+//==========================================//
+
+/**
+* Implementation of hook_widget_info().
+*/
+function autocomplete_dropbox_widget_info() {
+  return array(
+    // The machine name of the widget.
+    'autocomplete_dropbox_widget' => array(
+      // The human-readable label of the field that will be seen in the Manage fields screen.
+      'label' => t('Auto Complete Dropbox'),
+      // An array of the field types this widget can be used with.
+      'field types' => array('autocomplete_dropbox'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+      'callbacks' => array(
+      'default value' => CONTENT_CALLBACK_DEFAULT,
+      ),
+    ),
+  );
+}
+
+/**
+* Implementation of hook_widget().
+*/
+function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+    
+    $vid = $field['vocabulary_id'];
+    
+    $element['term_ids'] = array(
+      '#type' => 'textfield', 
+      '#maxlength' => 200, 
+      '#weight' => 0,
+      '#prefix' => '<div class="dropbox-widget"><div class="form-item"><label>'.$field['widget']['label'].':</label></div><div class="autocomplete-dropbox">',
+      '#suffix' => '</div>',
+    );
+    
+    $element['saved_tids'] = array(
+      '#type' => 'hidden',
+      '#maxlength' => 41,
+      '#default_value' => $items[$delta]['term_ids'],
+      '#weight' => 1,
+      '#prefix' => '<div class="saved-tids">',
+      '#suffix' => '</div>',
+    );
+    
+    //Get the default values to be displayed
+    $default_tids_string = $items[$delta]['term_ids'];
+    $count_tids = substr_count($default_tids_string, ',');
+    $default_terms = '';
+    
+    for ($k = 0; $k < $count_tids; $k++) {
+      $tid = substr($default_tids_string, 0, strpos($default_tids_string, ','));
+      $default_terms .= taxonomy_get_term($tid)->name.',';
+      $default_tids_string = substr($default_tids_string, strpos($default_tids_string, ',') + 1);
+    }
+    
+    $element['new_terms'] = array(
+      '#type' => 'hidden',
+      '#maxlength' => 200,
+      '#default_value' => $default_terms,
+      '#weight' => 2,
+      '#prefix' => '<div class="new-terms">',
+      '#suffix' => '</div>',
+    );
+    
+    $element['this_vid'] = array(
+      '#type' => 'hidden',
+      '#maxlength' => 43,
+      '#default_value' => $vid,
+      '#weight' => 3,
+      '#prefix' => '<div class="this-vid">',
+      '#suffix' => '</div>',
+    );
+    
+    $element['term_id_limit'] = array(
+      '#type' => 'hidden',
+      '#maxlength' => 5,
+      '#default_value' => $field['term_limit'],
+      '#weight' => 4,
+      '#prefix' => '<div class="this-term-id-limit">',
+      '#suffix' => '</div> </div><!--dropbox-widget-->',
+    );
+    
+  return $element;
+}
