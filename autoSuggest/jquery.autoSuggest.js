@@ -22,8 +22,6 @@
 var saved_tids = new Array();
 var new_terms = new Array();
 
-//~ alert("autoSuggest");
-
 // Another helper function
 function substr_count(string,substring,start,length)
 {
@@ -38,29 +36,6 @@ function substr_count(string,substring,start,length)
  return c;
 }
 
-// Array Remove - By John Resig (MIT Licensed)
-/*Array.prototype.remove = function(from, to) {
-  var rest = this.slice((to || from) + 1 || this.length);
-  this.length = from < 0 ? this.length + from : from;
-  return this.push.apply(this, rest);
-};*/
-
-//~ function print_r(theObj){
-       //~ if(theObj.constructor == Array || theObj.constructor == Object){
-          //~ document.write("<ul>")
-          //~ for(var p in theObj){
-             //~ if(theObj[p].constructor == Array || theObj[p].constructor == Object){
-                //~ document.write("<li>["+p+"] => "+typeof(theObj)+"</li>");
-                //~ document.write("<ul>")
-                //~ print_r(theObj[p]);
-                //~ document.write("</ul>")
-             //~ } else {
-                //~ document.write("<li>["+p+"] => "+theObj[p]+"</li>");
-             //~ }
-          //~ }
-          //~ document.write("</ul>")
-       //~ }
-    //~ }
 
 (function($){
 	$.fn.autoSuggest = function(data, options) {
@@ -244,8 +219,7 @@ function substr_count(string,substring,start,length)
 						case 13: // return
 							tab_press = false;
 							var active = $("li.active:first", results_holder);
-							//~ print_r(active);
-							//~ alert(active.length);
+							
 							if(active.length > 0){
 								active.click();
 								results_holder.hide();
