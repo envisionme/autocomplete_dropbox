@@ -10,6 +10,17 @@
   drupal_add_css(drupal_get_path('module', 'autocomplete_dropbox').'/autoSuggest/autoSuggest.css', 'module');
  }
   
+  //Pre fetch data from db
+  $result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d", (int)$_GET['vid']);
+  global $simple_data;
+  while($obj = db_fetch_object($result)) {
+    $json = array();
+    $json['value'] = $obj->name;
+    $json['name'] = $obj->name;
+    $json['tid'] = $obj->tid;
+    $simple_data[] = $json;
+  }
+  
 /**
 * Implementation of hook_menu
 * This module uses a custom autocomplete path because we need the term id in addition to the term name
@@ -28,16 +39,8 @@ function autocomplete_dropbox_menu() {
 function autocomplete_dropbox_autosuggest() {
   $data = array();
   drupal_set_header('Content-type: text/plain; charset: utf-8');
-  //~ $result = db_query("SELECT tid, name FROM {term_data} WHERE LOWER(name) LIKE '%%%s%' AND vid = %d", strtolower($_GET['term']), (int)$_GET['vid']);
-  $result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d", (int)$_GET['vid']);
-  while($obj = db_fetch_object($result)) {
-    $json = array();
-    $json['value'] = $obj->name;
-    $json['name'] = $obj->name;
-    $json['tid'] = $obj->tid;
-    $data[] = $json;
-  }
-  echo json_encode($data);
+  global $simple_data;
+  echo json_encode($simple_data);
   exit();
 }
 
