@@ -8,12 +8,11 @@
   drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox').'/autoSuggest/jquery.autoSuggest.js', 'module');
   drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox').'/autocomplete_dropbox.js', 'module'); // Can be moved to info file if so desired
   drupal_add_css(drupal_get_path('module', 'autocomplete_dropbox').'/autoSuggest/autoSuggest.css', 'module');
-  
-  //Do some pre-fetching from the database
+ }
+ 
+//Do some pre-fetching from the database
   $result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d", (int)$_GET['vid']);
   $simple_test = "Simple test";
-  
- }
  
 /**
 * Implementation of hook_menu
@@ -35,9 +34,8 @@ function autocomplete_dropbox_autosuggest() {
   drupal_set_header('Content-type: text/plain; charset: utf-8');
   //~ $result = db_query("SELECT tid, name FROM {term_data} WHERE LOWER(name) LIKE '%%%s%' AND vid = %d", strtolower($_GET['term']), (int)$_GET['vid']);
   //~ $result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d", (int)$_GET['vid']);
-  print_r($result);
+  $simple_test = "Simple Test";
   print_r($simple_test);
-  
   while($obj = db_fetch_object($result)) {
     $json = array();
     $json['value'] = $obj->name;
