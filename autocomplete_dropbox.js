@@ -6,7 +6,6 @@ $(document).ready(function() {
     commaListTextfield              = $(this).find('.new-terms input[type=hidden]');
     autocompletedropboxTextfield    = $(this).find('.autocomplete-dropbox input[type=text]');
     termLimit                       = $(this).find('.this-term-id-limit input[type=hidden]').val();
-    //~ alert(termLimit);
     if(termLimit == 0)
       termLimit = false;
 
