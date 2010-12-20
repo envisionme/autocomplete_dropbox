@@ -34,6 +34,7 @@ function autocomplete_dropbox_autosuggest() {
   drupal_set_header('Content-type: text/plain; charset: utf-8');
   //~ $result = db_query("SELECT tid, name FROM {term_data} WHERE LOWER(name) LIKE '%%%s%' AND vid = %d", strtolower($_GET['term']), (int)$_GET['vid']);
   //~ $result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d", (int)$_GET['vid']);
+  print_r($result);
   
   while($obj = db_fetch_object($result)) {
     $json = array();
