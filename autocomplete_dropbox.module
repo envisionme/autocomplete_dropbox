@@ -48,8 +48,8 @@ function autocomplete_dropbox_autosuggest() {
 		exit();
 	}
 	//Pre fetch data from db
-	//~ $result = db_query("SELECT tid, name FROM {term_data} WHERE LOWER(name) LIKE '%%%s%' AND vid = %d", strtolower($_GET['term']), (int)$_GET['vid']);
-  $result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d AND name LIKE '%%%s%'", (int)$_GET['vid'], $_GET['str']);
+	$result = db_query("SELECT tid, name FROM {term_data} WHERE LOWER(name) LIKE '%%%s%' AND vid = %d", strtolower($_GET['str']), (int)$_GET['vid']);
+  // $result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d AND name LIKE '%%%s%'", (int)$_GET['vid'], $_GET['str']);
   while($obj = db_fetch_object($result)) {
     $json = array();
     $json['value'] = $obj->name;
@@ -83,12 +83,17 @@ function autocomplete_dropbox_field_settings($op, $field) {
   switch ($op) {
     case 'form':
     //Create the settings form for selecting which vocabulary to use for autocompletion
-    $form = array();
+		$vocabularies = array();
+		foreach(taxonomy_get_vocabularies() as $vocabulary) {
+			$vocabularies[$vocabulary->vid] = $vocabulary->name;
+		}
+		$form = array();
     $form['vocabulary_id'] = array(
-      '#type'   => 'textfield',
+      '#type'   => 'select',
       '#title'  => t('Auto Complete Vocabulary ID'), 
       '#default_value' => $field['vocabulary_id'] ? $field['vocabulary_id'] : '',
       '#required' => TRUE,
+			'#options' => $vocabularies,
       '#description' => t('The id of the vocabulary to be used to populate the autocomplete dropbox suggestions.'),
     );
     $form['term_limit'] = array(
