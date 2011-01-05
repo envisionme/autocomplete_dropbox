@@ -4,27 +4,29 @@
  * @file
  * This module defines a new cck field and widget that provides an autocomplete field with a dropbox for storing multiple values.
  */
- if(arg(0) == 'node') { //test to see that the field is displayed otherwise the js is not needed and can create problems with other js
-  drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox').'/autoSuggest/jquery.autoSuggest.js', 'module');
-  drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox').'/autocomplete_dropbox.js', 'module'); // Can be moved to info file if so desired
-  drupal_add_css(drupal_get_path('module', 'autocomplete_dropbox').'/autoSuggest/autoSuggest.css', 'module');
- }
+
+//test to see that the field is displayed otherwise the js is not needed and can create problems with other js
+if(arg(0) == 'node') {
+	drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox').'/autoSuggest/jquery.autoSuggest.js', 'module');
+	drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox').'/autocomplete_dropbox.js', 'module'); // Can be moved to info file if so desired
+	drupal_add_css(drupal_get_path('module', 'autocomplete_dropbox').'/autoSuggest/autoSuggest.css', 'module');
+}
   
-  //Pre fetch data from db
-  $result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d", (int)$_GET['vid']);
-  global $simple_data;
-  while($obj = db_fetch_object($result)) {
-    $json = array();
-    $json['value'] = $obj->name;
-    $json['name'] = $obj->name;
-    $json['tid'] = $obj->tid;
-    $simple_data[] = $json;
-  }
+//Pre fetch data from db
+$result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d", (int)$_GET['vid']);
+global $simple_data;
+while($obj = db_fetch_object($result)) {
+  $json = array();
+  $json['value'] = $obj->name;
+  $json['name'] = $obj->name;
+  $json['tid'] = $obj->tid;
+  $simple_data[] = $json;
+}
   
 /**
-* Implementation of hook_menu
-* This module uses a custom autocomplete path because we need the term id in addition to the term name
-**/
+ * Implementation of hook_menu
+ * This module uses a custom autocomplete path because we need the term id in addition to the term name
+ */
 function autocomplete_dropbox_menu() {
   $items = array();
   $items['autocomplete_dropbox.json'] = array(
@@ -37,11 +39,25 @@ function autocomplete_dropbox_menu() {
 }
 
 function autocomplete_dropbox_autosuggest() {
+	$prefetch = TRUE;
   $data = array();
   drupal_set_header('Content-type: text/plain; charset: utf-8');
-  global $simple_data;
-  echo json_encode($simple_data);
-  exit();
+  if (!$prefetch) {
+		global $simple_data;
+		echo json_encode($simple_data);
+		exit();
+	}
+	//Pre fetch data from db
+	//~ $result = db_query("SELECT tid, name FROM {term_data} WHERE LOWER(name) LIKE '%%%s%' AND vid = %d", strtolower($_GET['term']), (int)$_GET['vid']);
+  $result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d AND name LIKE '%%%s%'", (int)$_GET['vid'], $_GET['str']);
+  while($obj = db_fetch_object($result)) {
+    $json = array();
+    $json['value'] = $obj->name;
+    $json['name'] = $obj->name;
+    $json['tid'] = $obj->tid;
+    $data[] = $json;
+  }
+  echo json_encode($data);
 }
 
 //==========================================//

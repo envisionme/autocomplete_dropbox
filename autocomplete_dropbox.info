@@ -1,6 +1,6 @@
 ; $Id$
-name = Auto Complete Dropbox
-description = Defines a new widget for adding multiple values to a field.
+name = "Auto Complete Dropbox"
+description = "Defines a new widget for adding multiple values to a field."
 dependencies[] = content
-package = NoJoShmo - Custom Modules
+package = "NoJoShmo - Custom Modules"
 core = 6.x
