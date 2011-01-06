@@ -48,8 +48,7 @@ function autocomplete_dropbox_autosuggest() {
 		exit();
 	}
 	//Pre fetch data from db
-	$result = db_query("SELECT tid, name FROM {term_data} WHERE LOWER(name) LIKE '%%%s%' AND vid = %d", strtolower($_GET['str']), (int)$_GET['vid']);
-  // $result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d AND name LIKE '%%%s%'", (int)$_GET['vid'], $_GET['str']);
+	$result = db_query("SELECT tid, name FROM {term_data} WHERE LOWER(name) LIKE '%%%s%' AND vid = %d", strtolower($_GET['term']), (int)$_GET['vid']);
   while($obj = db_fetch_object($result)) {
     $json = array();
     $json['value'] = $obj->name;
@@ -63,6 +62,15 @@ function autocomplete_dropbox_autosuggest() {
 //==========================================//
 // DEFINE THE FIELD
 //==========================================//
+
+/**
+* Implementation of hook_help().
+*/
+function autocomplete_dropbox_help($path, $arg) {
+  if ($path == 'admin/help#autocomplete_dropbox') {
+		return 'A module to aid the process of tagging a node with multiple taxonomy terms by suplying an autocomplete and tag method.';
+	}
+}
 
 /**
 * Implementation of hook_field_info().
@@ -274,9 +282,8 @@ function autocomplete_dropbox_widget_info() {
 * Implementation of hook_widget().
 */
 function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delta = 0) {
-    
+		// print_r($form);
     $vid = $field['vocabulary_id'];
-    
     $element['term_ids'] = array(
       '#type' => 'textfield', 
       '#maxlength' => 200, 

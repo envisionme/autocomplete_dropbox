@@ -1,14 +1,12 @@
+if (Drupal.jsEnabled) {
 $(document).ready(function() {
-
   $('.dropbox-widget').each(function() {
-
-    savedTidsTextfield              = $(this).find('.saved-tids input[type=hidden]');
-    commaListTextfield              = $(this).find('.new-terms input[type=hidden]');
-    autocompletedropboxTextfield    = $(this).find('.autocomplete-dropbox input[type=text]');
-    termLimit                       = $(this).find('.this-term-id-limit input[type=hidden]').val();
+    savedTidsTextfield = $(this).find('.saved-tids input[type=hidden]');
+    commaListTextfield = $(this).find('.new-terms input[type=hidden]');
+    autocompletedropboxTextfield = $(this).find('.autocomplete-dropbox input[type=text]');
+    termLimit = $(this).find('.this-term-id-limit input[type=hidden]').val();
     if(termLimit == 0)
       termLimit = false;
-
     comma_list  = savedTidsTextfield.val();
     term_list   = commaListTextfield.val();
     commaListTextfield.val('');
@@ -42,3 +40,4 @@ $(document).ready(function() {
     });
   });
 });
+}
