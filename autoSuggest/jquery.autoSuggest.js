@@ -23,8 +23,7 @@ var saved_tids = new Array();
 var new_terms = new Array();
 
 // Another helper function
-function substr_count(string,substring,start,length)
-{
+function substr_count(string,substring,start,length) {
  var c = 0;
  if(start) { string = string.substr(start); }
  if(length) { string = string.substr(0,length); }
@@ -41,7 +40,7 @@ function substr_count(string,substring,start,length)
 	$.fn.autoSuggest = function(data, options) {
 		var defaults = { 
 			asHtmlID: false,
-			startText: "Enter Name Here",
+			startText: "",
 			emptyText: "No Results Found",
 			preFill: {},
 			limitText: "No More Selections Are Allowed",
@@ -472,7 +471,6 @@ function substr_count(string,substring,start,length)
 						start.addClass("active");
 					}
 				}
-									
 			});
 		}
 	}

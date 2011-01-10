@@ -7,24 +7,30 @@ $(document).ready(function() {
     termLimit = $(this).find('.this-term-id-limit input[type=hidden]').val();
     if(termLimit == 0)
       termLimit = false;
-    comma_list  = savedTidsTextfield.val();
-    term_list   = commaListTextfield.val();
-    commaListTextfield.val('');
-    count_tids = substr_count(comma_list, ',');
+    comma_list  = savedTidsTextfield.val()+'';
+    term_list   = commaListTextfield.val()+'';
+		// commaListTextfield.val('');
 
-    var code = 'var data = {items: [';
+		// create arrays from comma lists
+		var ar_empty = false;
+		if (comma_list.length == 0) 
+			ar_empty = true;
+		var tids = comma_list.split(',');
+		var terms = term_list.split(',');
+		var ar_size = tids.length;
 
-    for (var k = 0; k < count_tids; k++) {
-      pos = comma_list.indexOf(',');
-      termpos = term_list.indexOf(',');
-      tid = comma_list.substr(0, pos);
-      term_name = term_list.substr(0, termpos);
-      comma_list = comma_list.substr(pos+1);
-      term_list = term_list.substr(termpos+1);
-      code = code + '{value: "' + term_name +'", name: "' + term_name + '", tid: "' + tid + '"},';
-    }
+		// console.debug(ar_empty);
+		var code = 'var data = {items: [';
 
-    code = code + ']};';
+		if (!ar_empty)
+		for(i = 0; i < ar_size; i++) {
+			var term = terms.shift();
+			var tid = tids.shift();
+			code = code + '{value: "' + term +'", name: "' + term + '", tid: "' + tid + '"},';
+			// console.debug( '{value: "' + term +'", name: "' + term + '", tid: "' + tid + '"},');
+		}
+
+		code = code + ']};';
     eval(code);
 
     autocompletedropboxTextfield.autoSuggest(Drupal.settings.basePath + "autocomplete_dropbox.json", {

@@ -149,7 +149,7 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 }
 
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
-  
+  // print_r($item);
   //First add all new taxonomy terms to the correct taxonomy
   
   //Get the values for the new_terms array
@@ -282,8 +282,8 @@ function autocomplete_dropbox_widget_info() {
 * Implementation of hook_widget().
 */
 function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delta = 0) {
-		// print_r($form);
-    $vid = $field['vocabulary_id'];
+		$items = _profilewizard_clean_items($items);
+		$vid = $field['vocabulary_id'];
     $element['term_ids'] = array(
       '#type' => 'textfield', 
       '#maxlength' => 200, 
@@ -302,15 +302,12 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
     );
     
     //Get the default values to be displayed
-    $default_tids_string = $items[$delta]['term_ids'];
-    $count_tids = substr_count($default_tids_string, ',');
     $default_terms = '';
-    
-    for ($k = 0; $k < $count_tids; $k++) {
-      $tid = substr($default_tids_string, 0, strpos($default_tids_string, ','));
-      $default_terms .= taxonomy_get_term($tid)->name.',';
-      $default_tids_string = substr($default_tids_string, strpos($default_tids_string, ',') + 1);
-    }
+		foreach(explode(',', $items[$delta]['term_ids']) as $tid) {
+			$term = taxonomy_get_term($tid);
+			$default_terms[] = $term->name;
+		}
+		$default_terms = implode(',', $default_terms);
     
     $element['new_terms'] = array(
       '#type' => 'hidden',
@@ -340,4 +337,17 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
     );
     
   return $element;
+}
+
+function _profilewizard_clean_items($items = array()) {
+	$terms = array();
+	$tids = explode(',', $items[0]['term_ids']);
+	foreach($tids as $tid) {
+		$term = taxonomy_get_term($tid);
+		if (!empty($term->tid))
+			$terms[] = $term->tid;
+	}
+	// remove duplicates
+	$terms = array_unique($terms);
+	return array(array('term_ids' => implode(',', $terms)));
 }
