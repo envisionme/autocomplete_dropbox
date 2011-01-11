@@ -12,17 +12,6 @@ if(arg(0) == 'node') {
 	drupal_add_css(drupal_get_path('module', 'autocomplete_dropbox').'/autoSuggest/autoSuggest.css', 'module');
 }
   
-//Pre fetch data from db
-$result = db_query("SELECT tid, name FROM {term_data} WHERE vid = %d", (int)$_GET['vid']);
-global $simple_data;
-while($obj = db_fetch_object($result)) {
-  $json = array();
-  $json['value'] = $obj->name;
-  $json['name'] = $obj->name;
-  $json['tid'] = $obj->tid;
-  $simple_data[] = $json;
-}
-  
 /**
  * Implementation of hook_menu
  * This module uses a custom autocomplete path because we need the term id in addition to the term name
@@ -198,7 +187,7 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
     $node->taxonomy[] = $term;
   }
 	
-  $item['term_ids'] = implode(',', $saved_tids).',';
+  $item['term_ids'] = implode(',', $saved_tids);
 }
 
 /**
