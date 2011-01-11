@@ -360,13 +360,12 @@ function substr_count(string,substring,start,length) {
 				}
 				
 				function add_selected_item(data, num){
-					//Add some custom code to complete the hidden fields
+					// Add some custom code to complete the hidden fields
 					thisDropbox = values_input.parent().parent().parent().parent().parent();
 
 					if (data['tid']) {
 						thisDropbox.find('.saved-tids input[type=hidden]').val(thisDropbox.find('.saved-tids input[type=hidden]').val() + data['tid'] + ',');
-					}
-					else {
+					} else {
 						thisDropbox.find('.new-terms input[type=hidden]').val(thisDropbox.find('.new-terms input[type=hidden]').val() + data['name'] + ',');
 					}
 					//End custom code

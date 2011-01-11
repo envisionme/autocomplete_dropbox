@@ -9,7 +9,6 @@ $(document).ready(function() {
       termLimit = false;
     comma_list  = savedTidsTextfield.val()+'';
     term_list   = commaListTextfield.val()+'';
-		// commaListTextfield.val('');
 
 		// create arrays from comma lists
 		var ar_empty = false;
@@ -34,7 +33,7 @@ $(document).ready(function() {
     eval(code);
 
     autocompletedropboxTextfield.autoSuggest(Drupal.settings.basePath + "autocomplete_dropbox.json", {
-      minChars:           2,
+      minChars:           3,
       selectedItemProp:   'name',
       searchObjProps:     'name',
       emptyText:          '',

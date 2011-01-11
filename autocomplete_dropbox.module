@@ -149,59 +149,56 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 }
 
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
-  // print_r($item);
-  //First add all new taxonomy terms to the correct taxonomy
-  
-  //Get the values for the new_terms array
-  $new_tax_terms = array();
-  $new_tax_terms_string = $item['new_terms'];
-  $count_terms = substr_count($new_tax_terms_string, ',');
-  
-  for ($k = 0; $k < $count_terms; $k++) {
-    $term = substr($new_tax_terms_string, 0, strpos($new_tax_terms_string, ','));
-    $new_tax_terms[] = $term;
-    $new_tax_terms_string = substr($new_tax_terms_string, strpos($new_tax_terms_string, ',') + 1);
-  }
-  
+	$history = explode(',', $item['history']);
+	$tids = explode(',', $item['saved_tids']);
+	$new_tax_terms = explode(',', $item['new_terms']);
+	
+	// get names of removed terms
+	$removed_terms = array();
+	$removed_tids = array_diff($history, $tids);
+	foreach($removed_tids as $tid) {
+		$term = taxonomy_get_term($tid);
+		$removed_terms[] = $term->name;
+	}
+	
+	// get all names as of saved terms
+	$exception_list = array();
+	foreach($tids as $tid) {
+		$term = taxonomy_get_term($tid);
+		$exception_list[] = $term->name;
+	}
+	
+  // clean array to get all new terms to create
+	$new_tax_terms = array_diff($new_tax_terms, $removed_terms, $exception_list);
+	$new_tax_terms= array_filter($new_tax_terms, 'strlen');
+
   //Now lets add the new taxonomy terms to the correct taxonomy
   foreach($new_tax_terms as $new_tax_term) {
-    $newterm = array('vid' => $field['vocabulary_id'], 'name' => $new_tax_term);
-    taxonomy_save_term($newterm);
+		$terms = taxonomy_get_term_by_name($new_tax_term);
+		if (count($terms) > 0) {
+			// asort($terms);
+			$term = array_shift($terms);
+			$tids[] = $term->tid;
+		} else {
+			$newterm = array('vid' => $field['vocabulary_id'], 'name' => $new_tax_term);
+			taxonomy_save_term($newterm);
+			// $tids[] = $newterm->tid;
+			$terms = taxonomy_get_term_by_name($new_tax_term);
+			$term = array_shift($terms);
+			$tids[] = $term->tid;
+		}
   }
   
   //Get the values for the saved_tids array
-  $saved_tids = array();
-  $saved_tids_string = $item['saved_tids'];
-  $count_tids = substr_count($saved_tids_string, ',');
-  
-  for ($k = 0; $k < $count_tids; $k++) {
-    $term = substr($saved_tids_string, 0, strpos($saved_tids_string, ','));
-    $saved_tids[] = $term;
-    $saved_tids_string = substr($saved_tids_string, strpos($saved_tids_string, ',') + 1);
-  }
-  
-  //Get the newly added terms and add their id's to the saved_tids before tagging the node with these terms
-  foreach($new_tax_terms as $term) {
-    $returned_terms = taxonomy_get_term_by_name($term);
-    foreach($returned_terms as $aterm) {
-      if($aterm->vid == $field['vocabulary_id']) {
-        $saved_tids[] = $aterm->tid;
-      }
-    }
-  }
-  
-  //Create an array with all the taxonomy terms that needs to be saved
-  $terms_to_save = array();
-  $ids_to_save_string;
-  foreach($saved_tids as $tid) {
+  $saved_tids = $tids;
+	$saved_tids= array_filter($saved_tids, 'strlen');
+  $saved_tids = array_unique($saved_tids);
+	foreach($saved_tids as $tid) {
     $term = taxonomy_get_term($tid);
-    $ids_to_save_string .= $tid.',';
     $node->taxonomy[] = $term;
   }
-
-  //We save the term ids as well
-  $item['term_ids'] = $ids_to_save_string;
-
+	
+  $item['term_ids'] = implode(',', $saved_tids).',';
 }
 
 /**
@@ -295,10 +292,16 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
     $element['saved_tids'] = array(
       '#type' => 'hidden',
       '#maxlength' => 41,
-      '#default_value' => $items[$delta]['term_ids'],
+      '#default_value' => $items[$delta]['term_ids'].',',
       '#weight' => 1,
       '#prefix' => '<div class="saved-tids">',
       '#suffix' => '</div>',
+    );
+		
+		// add history to see if terms where removed
+		$element['history'] = array(
+      '#type' => 'value',
+      '#default_value' => $items[$delta]['term_ids'],
     );
     
     //Get the default values to be displayed
@@ -307,7 +310,7 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
 			$term = taxonomy_get_term($tid);
 			$default_terms[] = $term->name;
 		}
-		$default_terms = implode(',', $default_terms);
+		$default_terms = implode(',', $default_terms).',';
     
     $element['new_terms'] = array(
       '#type' => 'hidden',
