@@ -237,8 +237,15 @@ function autocomplete_dropbox_field_formatter_info() {
 */
 function theme_autocomplete_dropbox_formatter_default($element) {
   //Used to theme the standard output of the field
-  $output = $element['#item']['term_ids'];
-  return $output;
+	$output = array();
+	$terms = explode(',', $element['#item']['term_ids']);
+	
+  foreach ($terms as $tid) {
+		$term = taxonomy_get_term((int)$tid);
+		if ($term)
+			$output[] = $term->name;
+	}
+  return implode(', ', $output);
 }
 
 //==========================================//
