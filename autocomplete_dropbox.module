@@ -138,6 +138,9 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 }
 
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
+	if (!empty($item['term_ids']))
+		return;
+	// dpm($field);
 	$history = explode(',', $item['history']);
 	$tids = explode(',', $item['saved_tids']);
 	$new_tax_terms = explode(',', $item['new_terms']);
@@ -281,6 +284,7 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
       '#type' => 'textfield', 
       '#maxlength' => 200, 
       '#weight' => 0,
+			// '#default_value' => $items[$delta]['term_ids'].',',
       '#prefix' => '<div class="dropbox-widget"><div class="form-item"><label>'.$field['widget']['label'].':</label></div><div class="autocomplete-dropbox">',
       '#suffix' => '</div>',
     );
