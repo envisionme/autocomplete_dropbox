@@ -284,6 +284,7 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
       '#type' => 'textfield', 
       '#maxlength' => 200, 
       '#weight' => 0,
+			'#description' => $field['widget']['description'],
 			// '#default_value' => $items[$delta]['term_ids'].',',
       '#prefix' => '<div class="dropbox-widget"><div class="form-item"><label>'.$field['widget']['label'].':</label></div><div class="autocomplete-dropbox">',
       '#suffix' => '</div>',
