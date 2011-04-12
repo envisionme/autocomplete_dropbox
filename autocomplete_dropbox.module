@@ -277,7 +277,7 @@ function autocomplete_dropbox_widget_info() {
 /**
 * Implementation of hook_widget().
 */
-function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delta = 0) {	
 		$items = _profilewizard_clean_items($items);
 		$vid = $field['vocabulary_id'];
     $element['term_ids'] = array(
@@ -354,4 +354,41 @@ function _profilewizard_clean_items($items = array()) {
 	// remove duplicates
 	$terms = array_unique($terms);
 	return array(array('term_ids' => implode(',', $terms)));
+}
+
+function autocomplete_dropbox_taxonomy_manager_term($op, $arg0 = NULL, $arg1 = NULL, $arg2 = NULL) {    
+  switch($op) {
+    case 'merge':
+      $new = $arg0;
+      $old = $arg1;
+      $types = content_types();
+      foreach(content_fields() as $fieldname => $fieldinfo) {
+        if ($fieldinfo['type']=='autocomplete_dropbox') {
+          foreach($types as $type=>$info) {
+            if ($info['fields'][$fieldname]) {
+              if ($info['tables']['content_'.$fieldname]) {
+                $table = 'content_' . $fieldname;
+              }
+              else {
+                $table = _content_tablename($type, CONTENT_DB_STORAGE_PER_CONTENT_TYPE);
+              }
+							$dbfield = $fieldname . '_term_ids';
+							$result = db_query("SELECT nid, $dbfield FROM {$table} WHERE $dbfield LIKE '%%%s%' ", $old);
+							while ($obj = db_fetch_object($result)) {
+								// dpm($obj);
+								$terms = explode(',', $obj->{$dbfield});
+								foreach ($terms as $key => $term) {
+									if ($term == $old) {
+										$terms[$key] = $new;
+										break;
+									}
+								}
+								db_query("UPDATE {$table} SET $dbfield='%s' WHERE nid=%d",array(implode(',',$terms), $obj->nid));
+							}
+						}
+          }
+        }
+      }
+    break;
+  }
 }
