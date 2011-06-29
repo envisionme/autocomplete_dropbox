@@ -1,3 +1,0 @@
-alert("JavaScript executed");
-
-$(document).ready(function() { alert("JavaScript executed")});
