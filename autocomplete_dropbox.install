@@ -1,0 +1,37 @@
+<?php
+// $Id$
+
+/**
+* @file
+* Implementation of hook_install().
+*/
+function autocomplete_dropbox_install() {
+  drupal_load('module', 'content');
+  content_notify('install', 'autocomplete_dropbox');
+}
+
+/**
+* Implementation of hook_uninstall().
+**/
+function autocomplete_dropbox_uninstall() {
+  drupal_load('module', 'content');
+  content_notify('uninstall', 'autocomplete_dropbox');
+}
+
+/**
+* Implementation of hook_enable().
+*/
+function autocomplete_dropbox_enable() {
+  drupal_load('module', 'content');
+  content_notify('enable', 'autocomplete_dropbox');
+}
+
+/**
+* Implementation of hook_disable().
+*
+* Notify content module when this module is disabled.
+*/
+function autocomplete_dropbox_disable() {
+  drupal_load('module', 'content');
+  content_notify('disable', 'autocomplete_dropbox');
+}
