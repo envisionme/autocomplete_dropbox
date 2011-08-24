@@ -1,5 +1,4 @@
-if (Drupal.jsEnabled) {
-$(document).ready(function () {
+Drupal.behaviors.autocomplete_dropbox = function (context) {
   $('.dropbox-widget').each(function () {
     savedTidsTextfield = $(this).find('.saved-tids input[type=hidden]');
     commaListTextfield = $(this).find('.new-terms input[type=hidden]');
@@ -46,5 +45,4 @@ $(document).ready(function () {
       selectionLimit:     termLimit
     });
   });
-});
-}
+};
