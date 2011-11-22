@@ -1,4 +1,5 @@
 Drupal.behaviors.autocomplete_dropbox = function (context) {
+
   $('.dropbox-widget').each(function () {
     savedTidsTextfield = $(this).find('.saved-tids input[type=hidden]');
     commaListTextfield = $(this).find('.new-terms input[type=hidden]');
@@ -45,4 +46,14 @@ Drupal.behaviors.autocomplete_dropbox = function (context) {
       selectionLimit:     termLimit
     });
   });
+
+   $(".as-original input").click(function(i) {
+     $(this).removeAttr("maxlength");
+     $(this).css("width","500px");
+     $(this).parent().removeAttr("maxlength");
+     $(this).css("width","500");
+     $("input.form-text").css("max-width", "");
+     $("input.form-autocomplete").css("max-width","");
+   });
+
 };
