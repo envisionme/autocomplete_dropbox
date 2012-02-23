@@ -1,0 +1,6 @@
+; $Id$
+name = "Auto Complete Dropbox"
+description = "Defines a new widget for adding multiple values to a field."
+dependencies[] = content
+package = "CCK"
+core = 6.x
