@@ -1,0 +1,218 @@
+<?php
+
+/**
+ * @file
+ * This module defines a new cck field and widget that provides an autocomplete field with a dropbox for storing multiple values.
+ */
+
+//Add the styling needed
+drupal_add_css(drupal_get_path('module', 'autocomplete_dropbox') . '/autocomplete_dropbox.css');
+
+//==========================================//
+// DEFINE THE FIELD
+//==========================================//
+
+/**
+* Implementation of hook_help().
+*/
+function autocomplete_dropbox_help($path, $arg) {
+  if ($path == 'admin/help#autocomplete_dropbox') {
+    return 'A module to aid the process of selecting entities such as usernames and taxonomy terms by means of a dropdown box.';
+  }
+}
+
+/**
+* Implementation of hook_field_info().
+*/
+function autocomplete_dropbox_field_info() {
+  return array(
+    'autocomplete_dropbox' => array(
+      'label' => t('Auto Complete Dropbox'),
+      'description' => t('Store multiple items in one field.'),
+    ),
+  );
+}
+
+/**
+* Implementation of hook_field_settings().
+*/
+function autocomplete_dropbox_field_settings($op, $field) {
+  switch ($op) {
+    case 'form':
+      // Create the settings form for selecting which vocabulary to use for autocompletion
+      $vocabularies = array();
+      foreach (taxonomy_get_vocabularies() as $vocabulary) {
+        $vocabularies[$vocabulary->vid] = $vocabulary->name;
+      }
+      $form = array();
+      $form['context'] = array(
+        '#type'           => 'select',
+        '#title'          => t('Context'),
+        '#default_value'  => $field['context'] ? $field['context'] : '',
+        '#required'       => TRUE,
+        '#options'        => array('User', 'Taxonomy'),
+        '#description'    => 'The environment this field will be used in.', 
+      );
+      $form['vocabulary_id'] = array(
+        '#type'   => 'select',
+        '#title'  => t('Auto Complete Vocabulary'), 
+        '#default_value' => $field['vocabulary_id'] ? $field['vocabulary_id'] : '',
+        '#required' => TRUE,
+        '#options' => $vocabularies,
+        '#description' => t('The id of the vocabulary to be used to populate the autocomplete dropbox suggestions.'),
+      );
+      $form['term_limit'] = array(
+        '#type'   => 'textfield',
+        '#title'  => t('Amount of terms allowed'), 
+        '#default_value' => $field['term_limit'] ? $field['term_limit'] : '',
+        '#required' => TRUE,
+        '#description' => t('The maximum amount of terms allowed to be selected for this field.'),
+      );
+      return $form;
+      case 'database columns': // DB columns needed for storing field
+        $columns['term_ids'] = array(
+          'type' => 'varchar',
+          'length' => 40,
+          'not null' => FALSE,
+          'sortable' => TRUE,
+          'views' => TRUE,
+        );
+        return $columns;
+      case 'save':
+        return array('vocabulary_id', 'term_limit');
+    
+  }
+}
+
+/**
+* Implementation of hook_field().
+*/
+function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page) {
+  switch ($op) {      
+    case 'presave':
+      foreach ($items as $delta => $value) {
+        _autocomplete_dropbox_process($items[$delta], $delta, $field, $node);
+      }
+    break;
+  }
+}
+
+function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
+  $term_ids = explode(',', $item['term_ids']);
+  foreach($term_ids as $term_id) {
+    $taxonomy_term = taxonomy_get_term($term_id);
+    $node->taxonomy[] = $taxonomy_term;
+  }
+}
+/**
+* Implementation of hook_content_is_empty().
+*/
+function autocomplete_dropbox_content_is_empty($item, $field) {
+  if (empty($item['term_ids'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+//==========================================//
+// DEFINING A WIDGET
+//==========================================//
+
+/**
+* Implementation of hook_widget_info().
+*/
+function autocomplete_dropbox_widget_info() {
+  return array(
+    'autocomplete_dropbox_widget' => array(
+      'label' => t('Auto Complete Dropbox'),
+      'field types' => array('autocomplete_dropbox'), // Field types this widget can be used with.
+      'multiple values' => CONTENT_HANDLE_CORE,
+      'callbacks' => array('default value' => CONTENT_CALLBACK_DEFAULT,),
+    ),
+  );
+}
+
+/**
+* Implementation of hook_widget().
+*/
+function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+
+  //Get the current users contacts to use for the autocomplete
+  $result = db_query('SELECT name, tid FROM {term_data} WHERE vid="%s"', $field['vocabulary_id']);
+  $term_names = array();
+  $term_ids   = array();
+  while ($next_term = db_fetch_object($result)) {
+    $term_names[] = $next_term->name;
+    $term_ids[]   = $next_term->tid;
+  }
+ 
+  //Add the javascript needed
+  drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox') . '/autocomplete_dropbox.js');
+  //Send all the variables needed through to our javascript
+  drupal_add_js(array('autocomplete_dropbox' => array(
+    'taxonomy_term_names' => array($delta => $term_names),
+    'taxonomy_term_ids'   => array($delta => $term_ids),
+  )), 'setting');
+
+
+
+  $default_ids = explode(',', $items[$delta]['term_ids']);
+
+  $nice_default_values = '';
+
+  foreach($default_ids as $term_id) {
+    $term = taxonomy_get_term($term_id);
+    $nice_default_values .= '<div class="entered-term-name"><div class="term-id">'. $term_id .'</div>' .$term->name. '<a class="close-entered-name">×</a></div>';
+  }
+
+  $nice_field_prefix = '<div class="autocomplete-dropbox-field-wrapper"><div class="term-names-wrapper"><div id="entered-term-names-wrapper">'. $nice_default_values .'</div><div style="clear:both"></div><input class="term-names-input" type="text" autocomplete="off"/></div><div style="clear: both"></div><div class="dropdown-term-names" style="display: block;"></div>'; 
+
+  $element['term_ids'] = array(
+    '#type' => 'textfield', 
+    '#maxlength' => 200, 
+    '#weight' => 0,
+    '#description' => $field['widget']['description'],
+    '#prefix' => $nice_field_prefix,
+    '#suffix' => '</div>',
+    '#default_value' => $items[$delta]['term_ids'],
+  );
+       
+  return $element;
+}
+
+//==========================================//
+// DEFINING A FORMATTER
+//==========================================//
+
+/**
+* Implementation of hook_theme().
+*/
+function autocomplete_dropbox_theme() {
+  return array(
+    // Themes for the formatters.
+    'autocomplete_dropbox_formatter_default' => array(
+      'arguments' => array('element' => NULL),
+    ),
+  );
+}
+
+/**
+* Implementation of hook_field_formatter_info().
+*/
+function autocomplete_dropbox_field_formatter_info() {
+  return array(
+    'default' => array(
+      'label' => t('Default'),
+      'field types' => array('autocomplete_dropbox'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+  );
+}
+
+/**
+* Theme function for 'default' companyfield formatter.
+*/
+function theme_autocomplete_dropbox_formatter_default($element) {
+  return $element['#item']['term_ids'];
+}
+
