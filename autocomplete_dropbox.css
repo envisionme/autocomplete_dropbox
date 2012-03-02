@@ -57,3 +57,11 @@
   padding-left: 3px;
   border: 1px solid grey;
 }
+
+.vocab-id {
+  display: none;
+}
+
+.autocomplete-dropbox-field-wrapper .form-item .form-text {
+  display: none;
+}

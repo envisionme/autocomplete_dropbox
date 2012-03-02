@@ -5,6 +5,68 @@
  * This module defines a new cck field and widget that provides an autocomplete field with a dropbox for storing multiple values.
  */
 
+
+//=======================================//
+// SOME MENU ITEMS                       //
+//=======================================//
+
+/**
+ * Implementation of hook_menu
+ * This module uses a custom autocomplete path because we need the term id in addition to the term name
+ */
+function autocomplete_dropbox_menu() {
+  $items = array();
+  $items['autocomplete_dropbox.json'] = array(
+    'title' => 'Dropbox Autocomplete Widget',
+    'page callback' => 'autocomplete_dropbox_autosuggest',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  return $items;
+}
+
+function autocomplete_dropbox_autosuggest() {
+  $prefetch = TRUE;
+  $data = array();
+  drupal_set_header('Content-type: text/plain; charset: utf-8');
+  if (!$prefetch) {
+    global $_autocomplete_dropbox_data;
+    echo json_encode($_autocomplete_dropbox_data);
+    exit();
+  }
+  //Pre fetch data from db
+  $result = db_query("SELECT tid, name FROM {term_data} WHERE LOWER(name) LIKE '%%%s%' AND vid = %d", strtolower($_GET['term']), (int)$_GET['vid']);
+  while ($obj = db_fetch_object($result)) {
+    $json = array();
+    $json['value'] = $obj->name;
+    $json['name'] = $obj->name;
+    $json['tid'] = $obj->tid;
+    $data[] = $json;
+  }
+  echo json_encode($data);
+}
+
+
+
+// A simple test hook we'll use later
+
+// Example variable $layouts
+$strings = array();
+
+// The hook will hook other modules on our function
+$strings = module_invoke_all('autocomplete_dropbox_theme_dropdown_item');
+
+//print_r($strings);
+
+// The returned value is an array of return values of the hook implementations
+foreach($strings as $next_string){
+  // Do stuff with the returned variables
+  print $next_string;
+}
+
+//print_r(module_implements('autocomplete_dropbox_theme_dropdown_item'));
+//print_r($strings);
+
 //Add the styling needed
 drupal_add_css(drupal_get_path('module', 'autocomplete_dropbox') . '/autocomplete_dropbox.css');
 
@@ -141,20 +203,17 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
   $result = db_query('SELECT name, tid FROM {term_data} WHERE vid="%s"', $field['vocabulary_id']);
   $term_names = array();
   $term_ids   = array();
+  $terms_array = array();
   while ($next_term = db_fetch_object($result)) {
     $term_names[] = $next_term->name;
     $term_ids[]   = $next_term->tid;
+    $terms_array[]  = array('id' => $next_term->tid, 'value' => $next_term->name);
   }
  
   //Add the javascript needed
   drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox') . '/autocomplete_dropbox.js');
   //Send all the variables needed through to our javascript
-  drupal_add_js(array('autocomplete_dropbox' => array(
-    'taxonomy_term_names' => array($delta => $term_names),
-    'taxonomy_term_ids'   => array($delta => $term_ids),
-  )), 'setting');
-
-
+  drupal_add_js(array('autocomplete_dropbox' => array('a'.$field['vocabulary_id'] => $terms_array)), 'setting');
 
   $default_ids = explode(',', $items[$delta]['term_ids']);
 
@@ -165,7 +224,7 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
     $nice_default_values .= '<div class="entered-term-name"><div class="term-id">'. $term_id .'</div>' .$term->name. '<a class="close-entered-name">×</a></div>';
   }
 
-  $nice_field_prefix = '<div class="autocomplete-dropbox-field-wrapper"><div class="term-names-wrapper"><div id="entered-term-names-wrapper">'. $nice_default_values .'</div><div style="clear:both"></div><input class="term-names-input" type="text" autocomplete="off"/></div><div style="clear: both"></div><div class="dropdown-term-names" style="display: block;"></div>'; 
+  $nice_field_prefix = '<div class="autocomplete-dropbox-field-wrapper"><div class="atocomplete-dropbox-label">'. $field['widget']['label']. '</div><div class="vocab-id">'. $field['vocabulary_id'] .'</div><div class="term-names-wrapper"><div id="entered-term-names-wrapper">'. $nice_default_values .'</div><div style="clear:both"></div><input class="term-names-input" type="text" autocomplete="off"/></div><div style="clear: both"></div><div class="dropdown-term-names" style="display: none;"></div>'; 
 
   $element['term_ids'] = array(
     '#type' => 'textfield', 

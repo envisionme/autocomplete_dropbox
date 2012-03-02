@@ -22,7 +22,26 @@ $(document).ready(function() {
 
 Drupal.behaviors.autocomplete_dropbox = function() {
 
+  $.getJSON("http://localhost/njs3/autocomplete_dropbox.json?vid=1",
+        function(data){
+          console.log(data);
+          //$.each(data.items, function(i,item){
+          //  console.log(item);
+          //  if ( i == 3 ) return false;
+          //});
+        });
+ 
+  function getDropdownData(vocabId) {
+    return Drupal.settings.autocomplete_dropbox["a"+vocabId];
+  }
+
   var navigationIndex = 0;
+
+  $(".autocomplete-dropbox-field-wrapper .form-text").each(function() {
+    //console.log($(this).val());
+    if($(this).val() == "")
+      $(this).parent().parent().find("#entered-term-names-wrapper").html("");
+  });
 
   $(".term-names-input").keyup(function(e, keyCode){
 
@@ -30,7 +49,6 @@ Drupal.behaviors.autocomplete_dropbox = function() {
 
     if (keyCode == 13) { //Enter key
       var usernameValue = $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html();
-      //$(this).parent().find("#entered-term-names-wrapper").css('background-color', 'green');
       $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'>" + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").html() + "<a class='close-entered-term-name'>×</a></div>");
       // Add the username to the original hidden input
       if ($(this).parent().parent().find('.form-text').val() == "")
@@ -58,14 +76,18 @@ Drupal.behaviors.autocomplete_dropbox = function() {
     else {
       $(this).parent().parent().find('.dropdown-term-names').html('');
       $(this).parent().parent().find('.dropdown-term-names').css('display', 'block');
-      var dropdownLength = Drupal.settings.autocomplete_dropbox.taxonomy_term_names[0].length;
+      vocabId = $(this).parent().parent().find(".vocab-id").html();
+      dropdownData = getDropdownData(vocabId);
+      console.log(dropdownData);
+      var dropdownLength = Drupal.settings.autocomplete_dropbox["a"+vocabId].length;
       for (var k = 0; k < dropdownLength; k++) {
-        if(($(this).val() != '') && (Drupal.settings.autocomplete_dropbox.taxonomy_term_names[0][k].toUpperCase().indexOf($(this).val().toUpperCase(), 0) > -1)) {
-          $(this).parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item'><div class='term-id'>" + Drupal.settings.autocomplete_dropbox.taxonomy_term_ids[0][k] + "</div>" + Drupal.settings.autocomplete_dropbox.taxonomy_term_names[0][k] + "</div>");
+        //console.log(Drupal.settings.autocomplete_dropbox[vocabId][k]['value']);
+        if(($(this).val() != '') && (dropdownData[k]['value'].toUpperCase().indexOf($(this).val().toUpperCase(), 0) > -1)) {
+          $(this).parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item'><div class='term-id'>" + dropdownData[k]['id'] + "</div>" + dropdownData[k]['value'] + "</div>");
         }
         else {
           navigationIndex = 0;
-        }
+        } 
       }
     }
     // Backspace pressed
