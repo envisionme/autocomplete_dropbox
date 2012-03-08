@@ -21,18 +21,27 @@ $(document).ready(function() {
 });
 
 Drupal.behaviors.autocomplete_dropbox = function() {
-
-  $.getJSON("http://localhost/njs3/autocomplete_dropbox.json?vid=1",
-        function(data){
-          console.log(data);
-          //$.each(data.items, function(i,item){
-          //  console.log(item);
-          //  if ( i == 3 ) return false;
-          //});
-        });
  
   function getDropdownData(vocabId) {
-    return Drupal.settings.autocomplete_dropbox["a"+vocabId];
+
+    var dropdownData = [];
+    $.ajax({
+      url: "http://dev.nojoshmo.com/autocomplete_dropbox.json?vid="+vocabId,
+      async: false,
+      dataType: 'json',
+      success: function (json) {
+        data = json;
+        dropdownData = new Array();
+        for(var i in data) {
+          var innerArray = new Array();
+          innerArray["id"] = data[i].tid;
+          innerArray["value"] = data[i].name;
+          dropdownData[i] = innerArray;
+        }  
+      }
+    });
+    return dropdownData;
+    //return Drupal.settings.autocomplete_dropbox["a"+vocabId];
   }
 
   var navigationIndex = 0;
@@ -78,8 +87,8 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       $(this).parent().parent().find('.dropdown-term-names').css('display', 'block');
       vocabId = $(this).parent().parent().find(".vocab-id").html();
       dropdownData = getDropdownData(vocabId);
-      console.log(dropdownData);
-      var dropdownLength = Drupal.settings.autocomplete_dropbox["a"+vocabId].length;
+      //console.log(dropdownData);
+      var dropdownLength = dropdownData.length;
       for (var k = 0; k < dropdownLength; k++) {
         //console.log(Drupal.settings.autocomplete_dropbox[vocabId][k]['value']);
         if(($(this).val() != '') && (dropdownData[k]['value'].toUpperCase().indexOf($(this).val().toUpperCase(), 0) > -1)) {
