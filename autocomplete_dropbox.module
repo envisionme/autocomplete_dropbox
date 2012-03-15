@@ -216,12 +216,13 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
   drupal_add_js(array('autocomplete_dropbox' => array('a'.$field['vocabulary_id'] => $terms_array)), 'setting');
 
   $default_ids = explode(',', $items[$delta]['term_ids']);
+  $default_ids = array_filter($default_ids, 'strlen');
 
   $nice_default_values = '';
 
   foreach($default_ids as $term_id) {
-    $term = taxonomy_get_term($term_id);
-    $nice_default_values .= '<div class="entered-term-name"><div class="term-id">'. $term_id .'</div>' .$term->name. '<a class="close-entered-name">×</a></div>';
+    if ($term = taxonomy_get_term($term_id))
+      $nice_default_values .= '<div class="entered-term-name"><div class="term-id">'. $term_id .'</div>' .$term->name. '<a class="close-entered-name">×</a></div>';
   }
 
   $nice_field_prefix = '<div class="autocomplete-dropbox-field-wrapper"><div class="atocomplete-dropbox-label">'. $field['widget']['label']. '</div><div class="vocab-id">'. $field['vocabulary_id'] .'</div><div class="term-names-wrapper"><div id="entered-term-names-wrapper">'. $nice_default_values .'</div><div style="clear:both"></div><input class="term-names-input" type="text" autocomplete="off"/></div><div style="clear: both"></div><div class="dropdown-term-names" style="display: none;"></div>'; 
@@ -233,7 +234,7 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
     '#description' => $field['widget']['description'],
     '#prefix' => $nice_field_prefix,
     '#suffix' => '</div>',
-    '#default_value' => $items[$delta]['term_ids'],
+    '#default_value' => implode(',', $default_ids),
   );
        
   return $element;
@@ -272,6 +273,13 @@ function autocomplete_dropbox_field_formatter_info() {
 * Theme function for 'default' companyfield formatter.
 */
 function theme_autocomplete_dropbox_formatter_default($element) {
-  return $element['#item']['term_ids'];
+  $term_id_array = explode(',', $element['#item']['term_ids']);
+  $term_names_array = array();
+  $output = '';
+  foreach($term_id_array as $term_id) {
+    $next_term = taxonomy_get_term($term_id);
+    $term_names_array[] = $next_term->name;
+  } 
+  return implode(', ', $term_names_array);
 }
 
