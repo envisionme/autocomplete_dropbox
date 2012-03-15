@@ -86,6 +86,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       $(this).parent().parent().find('.dropdown-term-names').html('');
       $(this).parent().parent().find('.dropdown-term-names').css('display', 'block');
       vocabId = $(this).parent().parent().find(".vocab-id").html();
+      $(this).parent().find(".term-names-loading").css("background-position", "450px -16px");
       dropdownData = getDropdownData(vocabId);
       //console.log(dropdownData);
       var dropdownLength = dropdownData.length;
@@ -98,6 +99,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
           navigationIndex = 0;
         } 
       }
+      $(this).parent().find(".term-names-loading").css("background-position", "450px 4px");
     }
     // Backspace pressed
     if (keyCode == 8) {
