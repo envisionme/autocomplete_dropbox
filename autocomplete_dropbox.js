@@ -24,24 +24,24 @@ Drupal.behaviors.autocomplete_dropbox = function() {
  
   function getDropdownData(vocabId) {
 
-    var dropdownData = [];
-    $.ajax({
-      url: "http://dev.nojoshmo.com/autocomplete_dropbox.json?vid="+vocabId,
-      async: false,
-      dataType: 'json',
-      success: function (json) {
-        data = json;
-        dropdownData = new Array();
-        for(var i in data) {
-          var innerArray = new Array();
-          innerArray["id"] = data[i].tid;
-          innerArray["value"] = data[i].name;
-          dropdownData[i] = innerArray;
-        }  
-      }
-    });
-    return dropdownData;
-    //return Drupal.settings.autocomplete_dropbox["a"+vocabId];
+    //var dropdownData = [];
+    //$.ajax({
+    //  url: "http://dev.nojoshmo.com/autocomplete_dropbox.json?vid="+vocabId,
+    //  async: false,
+    //  dataType: 'json',
+    //  success: function (json) {
+    //    data = json;
+    //    dropdownData = new Array();
+    //    for(var i in data) {
+    //      var innerArray = new Array();
+    //      innerArray["id"] = data[i].tid;
+    //      innerArray["value"] = data[i].name;
+    //      dropdownData[i] = innerArray;
+    //    }  
+    //  }
+    //});
+    //return dropdownData;
+    return Drupal.settings.autocomplete_dropbox["a"+vocabId];
   }
 
   var navigationIndex = 0;
