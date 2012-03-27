@@ -225,7 +225,7 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
       $nice_default_values .= '<div class="entered-term-name"><div class="term-id">'. $term_id .'</div>' .$term->name. '<a class="close-entered-name">×</a></div>';
   }
 
-  $nice_field_prefix = '<div class="autocomplete-dropbox-field-wrapper"><div class="atocomplete-dropbox-label">'. $field['widget']['label']. '</div><div class="vocab-id">'. $field['vocabulary_id'] .'</div><div class="term-names-wrapper"><div id="entered-term-names-wrapper">'. $nice_default_values .'</div><div style="clear:both"></div><input class="term-names-input" type="text" autocomplete="off"/><div class="term-names-loading" style="height: 20px; background-image: url('. base_path().drupal_get_path('module', 'autocomplete_dropbox') .'/images/throbber.gif); background-repeat: no-repeat; background-position: 450px 4px;" class="autocomplete-loading-image"></div></div><div style="clear: both"></div><div class="dropdown-term-names" style="display: none;"></div>'; 
+  $nice_field_prefix = '<div class="autocomplete-dropbox-field-wrapper"><div class="atocomplete-dropbox-label">'. $field['widget']['label']. '</div><div class="vocab-id">'. $field['vocabulary_id'] .'</div><div class="term-names-wrapper" style="background-image: url('. base_path().drupal_get_path('module', 'autocomplete_dropbox') .'/images/throbber.giff); background-repeat: no-repeat; background-position: 450px 4px;"><div id="entered-term-names-wrapper">'. $nice_default_values .'</div><input class="term-names-input" type="text" autocomplete="off"/></div><div style="clear: both"></div><div class="dropdown-term-names" style="display: none;"></div><div style="clear: both"></div>'; 
 
   $element['term_ids'] = array(
     '#type' => 'textfield', 
