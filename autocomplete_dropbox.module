@@ -159,12 +159,34 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
   }
 }
 
+/**
+* Implementation of hook_process().
+*/
+
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
   $term_ids = explode(',', $item['term_ids']);
+  $array_to_save = array(); 
+  //print_r($node->taxonomy);
+  //break;
+  $node->taxonomy['tags'][$field['vocabulary_id']] = '';
   foreach($term_ids as $term_id) {
-    $taxonomy_term = taxonomy_get_term($term_id);
-    $node->taxonomy[] = $taxonomy_term;
+    if(is_numeric($term_id)) {
+      $array_to_save[] = $term_id;
+      $taxonomy_term = taxonomy_get_term($term_id);
+      $node->taxonomy[] = $taxonomy_term;
+    }
+    else {
+      if(strlen($term_id) > 3) {
+        $newterm = array('vid' => $field['vocabulary_id'], 'name' => substr($term_id, 3));
+        taxonomy_save_term($newterm);
+        $terms = taxonomy_get_term_by_name(substr($term_id, 3));
+        $term = array_shift($terms);
+        $node->taxonomy[] = $term;
+        $array_to_save[] = $term->tid;
+      }
+    }
   }
+  $item['term_ids'] = implode(',', $array_to_save);
 }
 /**
 * Implementation of hook_content_is_empty().
@@ -233,8 +255,8 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
     '#weight' => 0,
     '#description' => $field['widget']['description'],
     '#prefix' => $nice_field_prefix,
-    '#suffix' => '</div>',
     '#default_value' => implode(',', $default_ids),
+    '#suffix' => '</div>',
   );
        
   return $element;

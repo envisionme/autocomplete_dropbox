@@ -57,18 +57,30 @@ Drupal.behaviors.autocomplete_dropbox = function() {
     keyCode = keyCode || e.keyCode;
 
     if (keyCode == 13) { //Enter key
-      var usernameValue = $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html();
-      $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'>" + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").html() + "<a class='close-entered-term-name'>×</a></div>");
-      // Add the username to the original hidden input
-      if ($(this).parent().parent().find('.form-text').val() == "")
-        $(this).parent().parent().find('.form-text').val($(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
-      else
-        $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
-      // Clear what needs to be cleared.
-      $(this).val('');
-      $(this).parent().parent().find(".dropdown-term-names").html('');
-      $(this).parent().parent().find(".dropdown-term-names").hide();
-      navigationIndex = 0;
+      if (navigationIndex != 0) {
+        var usernameValue = $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html();
+        $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'>" + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").html() + "<a class='close-entered-term-name'>×</a></div>");
+        // Add the username to the original hidden input
+        if ($(this).parent().parent().find('.form-text').val() == "")
+          $(this).parent().parent().find('.form-text').val($(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
+        else
+          $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
+        // Clear what needs to be cleared.
+        $(this).val('');
+        $(this).parent().parent().find(".dropdown-term-names").html('');
+        $(this).parent().parent().find(".dropdown-term-names").hide();
+        navigationIndex = 0;
+      }
+      else {
+        if ($(this).parent().parent().find(".dropdown-term-names").css('display') == 'none') {
+          $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'><div class='new-item' style='display: inline;'>" + $(this).val() + "</div><a class='close-entered-term-name'>×</a></div>");
+          if ($(this).parent().parent().find('.form-text').val() == "")
+            $(this).parent().parent().find('.form-text').val('###' + $(this).val());
+          else
+            $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + '###' + $(this).val());
+          $(this).val('');
+        }
+      }
     }
     // Down arrow pressed
     else if (keyCode == 40) {
@@ -116,7 +128,8 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       var temp_array = $(this).parent().parent().parent().parent().find('.form-text').val().split(',');
       var deleteIndex = 0;
       for (var i = 0; i < temp_array.length; i++) {
-        if (temp_array[i] == $(this).parent().children('.term-id').html())
+        console.log($(this).parent().children('.new-item').html());
+        if ((temp_array[i] == $(this).parent().children('.term-id').html()) || (temp_array[i] == '###' + $(this).parent().children('.new-item').html()) )
           deleteIndex = i;
       }
       temp_array.splice(deleteIndex,1);
