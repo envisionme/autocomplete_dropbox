@@ -11,6 +11,15 @@
 
 // We need this piece of code to disable form submit on enter. Thus far this is the only solution I can find.
 $(document).ready(function() {
+ 
+  //Workaround for dropdown not going away when clicking elsewhere on the screen 
+  $("body").click(function(e) {
+    if(!((e.target.id == "term-names-wrapper-0") || (e.target.id == "term-names-input-0") || ((e.target.id == "term-names-dropdown-item-0")))){
+        $(".dropdown-term-names").hide();
+        $(".term-names-input").val("");
+      }      
+  });
+
   $(window).keydown(function(event){
     if(event.keyCode == 13) {
       event.preventDefault();
@@ -48,11 +57,13 @@ Drupal.behaviors.autocomplete_dropbox = function() {
 
   $(".term-names-wrapper").click(function() {
     $(this).find(".term-names-input").focus();
-  });
-
-  $(".autocomplete-dropbox-field-wrapper .form-text").each(function() {
-    if($(this).val() == "")
-      $(this).parent().parent().find("#entered-term-names-wrapper").html("");
+    if($(this).parent().parent().find(".term-names-dropdown").is(":visible")) {
+      //do nothing...
+    }
+    else {
+      $(".dropdown-term-names").hide();
+      $(".term-names-input").val("");
+    }
   });
 
   $(".term-names-input").keyup(function(e, keyCode){
@@ -109,7 +120,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       for (var k = 0; k < dropdownLength; k++) {
         if(($(this).val() != '') && (dropdownData[k]['value'].toUpperCase().indexOf($(this).val().toUpperCase(), 0) > -1)) {
           flag_dropdown_empty = false; 
-          $(this).parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item'><div class='term-id'>" + dropdownData[k]['id'] + "</div>" + dropdownData[k]['value'] + "</div>");
+          $(this).parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item' id='term-names-dropdown-item-0'><div class='term-id'>" + dropdownData[k]['id'] + "</div>" + dropdownData[k]['value'] + "</div>");
           $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
         }
         else {
