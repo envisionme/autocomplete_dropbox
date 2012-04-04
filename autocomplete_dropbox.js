@@ -98,7 +98,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       $(this).parent().parent().find('.dropdown-term-names').html('');
       $(this).parent().parent().find('.dropdown-term-names').css('display', 'block');
       vocabId = $(this).parent().parent().find(".vocab-id").html();
-      $(this).parent().find(".term-names-loading").css("background-position", "450px -16px");
+      $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber-loading.gif)");
       dropdownData = getDropdownData(vocabId);
       //console.log(dropdownData);
       var dropdownLength = dropdownData.length;
@@ -107,6 +107,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
         if(($(this).val() != '') && (dropdownData[k]['value'].toUpperCase().indexOf($(this).val().toUpperCase(), 0) > -1)) {
           flag_dropdown_empty = false; 
           $(this).parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item'><div class='term-id'>" + dropdownData[k]['id'] + "</div>" + dropdownData[k]['value'] + "</div>");
+          $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
         }
         else {
           navigationIndex = 0;
@@ -114,7 +115,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       }
       if (flag_dropdown_empty)
         $(this).parent().parent().find('.dropdown-term-names').hide();
-      $(this).parent().find(".term-names-loading").css("background-position", "450px 4px");
+      $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
     }
     // Backspace pressed
     if (keyCode == 8) {
