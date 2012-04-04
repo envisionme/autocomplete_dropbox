@@ -46,8 +46,11 @@ Drupal.behaviors.autocomplete_dropbox = function() {
 
   var navigationIndex = 0;
 
+  $(".term-names-wrapper").click(function() {
+    $(this).find(".term-names-input").focus();
+  });
+
   $(".autocomplete-dropbox-field-wrapper .form-text").each(function() {
-    //console.log($(this).val());
     if($(this).val() == "")
       $(this).parent().parent().find("#entered-term-names-wrapper").html("");
   });
