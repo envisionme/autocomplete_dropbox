@@ -55,6 +55,10 @@ Drupal.behaviors.autocomplete_dropbox = function() {
 
   var navigationIndex = 0;
 
+  $('.term-names-wrapper').each(function() {
+    $(this).find('.description').html($(this).parent().find('.textfield').find('.description').html());
+  });
+
   // The delete button next to each term
   $(".entered-term-name a").click(function() {
     var temp_array = $(this).parent().parent().parent().parent().find('.form-text').val().split(',');

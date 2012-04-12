@@ -65,3 +65,7 @@
 .autocomplete-dropbox-field-wrapper .form-item .form-text {
   display: none;
 }
+
+.term-names-wrapper .description {
+  display: none;
+}
