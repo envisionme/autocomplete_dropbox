@@ -17,7 +17,7 @@ $(document).ready(function() {
     if(!((e.target.id == "term-names-wrapper-0") || (e.target.id == "term-names-input-0") || ((e.target.id == "term-names-dropdown-item-0")))){
         $(".dropdown-term-names").hide();
         $(".term-names-input").val("");
-      }      
+      }     
   });
 
   $(window).keydown(function(event){
@@ -55,15 +55,46 @@ Drupal.behaviors.autocomplete_dropbox = function() {
 
   var navigationIndex = 0;
 
-  $(".term-names-wrapper").click(function() {
-    $(this).find(".term-names-input").focus();
-    if($(this).parent().parent().find(".term-names-dropdown").is(":visible")) {
-      //do nothing...
+  // The delete button next to each term
+  $(".entered-term-name a").click(function() {
+    var temp_array = $(this).parent().parent().parent().parent().find('.form-text').val().split(',');
+    var deleteIndex = 0;
+    for (var i = 0; i < temp_array.length; i++) {
+      if ((temp_array[i] == $(this).parent().children('.term-id').html()) || (temp_array[i] == '###' + $(this).parent().children('.new-item').html()) )
+        deleteIndex = i;
+    }
+    temp_array.splice(deleteIndex,1);
+      
+    //Now we use this code to make a string again since join doesnt want to work
+    if (temp_array.length == 1) {
+      temp_string = temp_array[0];
+    }
+    else if (temp_array.length > 1) {
+      temp_string = '';
+      for (var k = 0; k < temp_array.length; k++) {
+        if (k == 0)
+          temp_string = temp_array[k];
+        else
+          temp_string = temp_string + ',' + temp_array[k];
+      }
     }
     else {
-      $(".dropdown-term-names").hide();
-      $(".term-names-input").val("");
+      temp_string = '';
     }
+    $(this).parent().parent().parent().parent().find('.form-text').val(temp_string);    
+    $(this).parent().remove();
+  });
+
+  $(".term-names-wrapper").click(function(e) {
+
+    $(this).find(".term-names-input").focus();
+      if($(this).parent().parent().find(".term-names-dropdown").is(":visible")) {
+      //do nothing...
+      }
+      else {
+        $(".dropdown-term-names").hide();
+        $(".term-names-input").val("");
+      }
   });
 
   $(".term-names-input").keyup(function(e, keyCode){
