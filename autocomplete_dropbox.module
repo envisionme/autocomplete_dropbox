@@ -248,9 +248,9 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
   }
 
   $nice_field_prefix = '<div class="autocomplete-dropbox-field-wrapper"><div class="atocomplete-dropbox-label">'. $field['widget']['label']. '</div><div class="vocab-id">'. $field['vocabulary_id'] .'</div><div 
-class="term-names-wrapper form-item" id="term-names-wrapper-0" style="background-image: url('. base_path().drupal_get_path('module', 'autocomplete_dropbox') .'/images/throbber.gif); background-repeat: no-repeat; 
+class="term-names-wrapper" id="term-names-wrapper-0" style="background-image: url('. base_path().drupal_get_path('module', 'autocomplete_dropbox') .'/images/throbber.gif); background-repeat: no-repeat; 
 background-position: 
-bottom right;"><div class="description">Test tipsy</div><div id="entered-term-names-wrapper">'. $nice_default_values .'</div><input class="term-names-input" id="term-names-input-0" type="text" autocomplete="off"/></div><div 
+bottom right;"><div class="description"></div><div id="entered-term-names-wrapper">'. $nice_default_values .'</div><input class="term-names-input" id="term-names-input-0" type="text" autocomplete="off"/></div><div 
 style="clear: 
 both"></div><div 
 class="dropdown-term-names" style="display: none;"></div><div style="clear: both"></div>'; 
