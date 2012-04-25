@@ -119,30 +119,32 @@ Drupal.behaviors.autocomplete_dropbox = function() {
     keyCode = keyCode || e.keyCode;
 
     if (keyCode == 13) { //Enter key
-      if (navigationIndex != 0) {
-        var usernameValue = $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html();
-        $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'>" + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").html() + "<a class='close-entered-term-name'>×</a></div>");
-        $(this).parent().parent().find('.terms-count .entered').html($(this).parent().find('#entered-term-names-wrapper').children().length);
-        // Add the username to the original hidden input
-        if ($(this).parent().parent().find('.form-text').val() == "")
-          $(this).parent().parent().find('.form-text').val($(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
-        else
-          $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
-        // Clear what needs to be cleared.
-        $(this).val('');
-        $(this).parent().parent().find(".dropdown-term-names").html('');
-        $(this).parent().parent().find(".dropdown-term-names").hide();
-        navigationIndex = 0;
-      }
-      else {
-        if ($(this).parent().parent().find(".dropdown-term-names").css('display') == 'none') {
-          $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'><div class='new-item' style='display: inline;'>" + $(this).val() + "</div><a class='close-entered-term-name'>×</a></div>");
+      if ($(this).val() != '') {
+        if (navigationIndex != 0) {
+          var usernameValue = $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html();
+          $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'>" + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").html() + "<a class='close-entered-term-name'>×</a></div>");
           $(this).parent().parent().find('.terms-count .entered').html($(this).parent().find('#entered-term-names-wrapper').children().length);
+          // Add the username to the original hidden input
           if ($(this).parent().parent().find('.form-text').val() == "")
-            $(this).parent().parent().find('.form-text').val('###' + $(this).val());
+            $(this).parent().parent().find('.form-text').val($(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
           else
-            $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + '###' + $(this).val());
+            $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
+          // Clear what needs to be cleared.
           $(this).val('');
+          $(this).parent().parent().find(".dropdown-term-names").html('');
+          $(this).parent().parent().find(".dropdown-term-names").hide();
+          navigationIndex = 0;
+        }
+        else {
+          if ($(this).parent().parent().find(".dropdown-term-names").css('display') == 'none') {
+            $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'><div class='new-item' style='display: inline;'>" + $(this).val() + "</div><a class='close-entered-term-name'>×</a></div>");
+            $(this).parent().parent().find('.terms-count .entered').html($(this).parent().find('#entered-term-names-wrapper').children().length);
+            if ($(this).parent().parent().find('.form-text').val() == "")
+              $(this).parent().parent().find('.form-text').val('###' + $(this).val());
+            else
+              $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + '###' + $(this).val());
+            $(this).val('');
+          }
         }
       }
     }
@@ -159,27 +161,32 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").css("background-color", "#ebeef0");   
     }
     else {
-      $(this).parent().parent().find('.dropdown-term-names').html('');
-      $(this).parent().parent().find('.dropdown-term-names').css('display', 'block');
-      vocabId = $(this).parent().parent().find(".vocab-id").html();
-      $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber-loading.gif)");
-      dropdownData = getDropdownData(vocabId);
-      //console.log(dropdownData);
-      var dropdownLength = dropdownData.length;
-      flag_dropdown_empty = true;
-      for (var k = 0; k < dropdownLength; k++) {
-        if(($(this).val() != '') && (dropdownData[k]['value'].toUpperCase().indexOf($(this).val().toUpperCase(), 0) > -1)) {
-          flag_dropdown_empty = false; 
-          $(this).parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item' id='term-names-dropdown-item-0'><div class='term-id'>" + dropdownData[k]['id'] + "</div>" + dropdownData[k]['value'] + "</div>");
-          $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
-        }
-        else {
-          navigationIndex = 0;
-        } 
+      if($(this).parent().parent().find('.terms-count .entered').html() == $(this).parent().parent().find('.terms-count .allowed').html()){
+        $(this).val('');
       }
-      if (flag_dropdown_empty)
-        $(this).parent().parent().find('.dropdown-term-names').hide();
-      $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
+      else {
+        $(this).parent().parent().find('.dropdown-term-names').html('');
+        $(this).parent().parent().find('.dropdown-term-names').css('display', 'block');
+        vocabId = $(this).parent().parent().find(".vocab-id").html();
+        $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber-loading.gif)");
+        dropdownData = getDropdownData(vocabId);
+        //console.log(dropdownData);
+        var dropdownLength = dropdownData.length;
+        flag_dropdown_empty = true;
+        for (var k = 0; k < dropdownLength; k++) {
+          if(($(this).val() != '') && (dropdownData[k]['value'].toUpperCase().indexOf($(this).val().toUpperCase(), 0) > -1)) {
+            flag_dropdown_empty = false; 
+            $(this).parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item' id='term-names-dropdown-item-0'><div class='term-id'>" + dropdownData[k]['id'] + "</div>" + dropdownData[k]['value'] + "</div>");
+            $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
+          }
+          else {
+            navigationIndex = 0;
+          } 
+        }
+        if (flag_dropdown_empty)
+          $(this).parent().parent().find('.dropdown-term-names').hide();
+        $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
+      }
     }
     // Backspace pressed
     if (keyCode == 8) {
