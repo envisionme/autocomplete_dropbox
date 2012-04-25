@@ -69,3 +69,13 @@
 .term-names-wrapper .description {
   display: none;
 }
+
+.terms-count {
+  width: 50px;
+  float: right;
+  font-weight: normal;
+}
+.autocomplete-dropbox-label {
+  width: 500px;
+  font-weight: bold;
+}

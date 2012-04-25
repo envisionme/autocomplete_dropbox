@@ -31,6 +31,12 @@ $(document).ready(function() {
 
 Drupal.behaviors.autocomplete_dropbox = function() {
 
+  // Set term counter
+  $('.autocomplete-dropbox-field-wrapper').each(function() {
+    $(this).find('.autocomplete-dropbox-label .terms-count .entered').html($(this).find('#entered-term-names-wrapper').children().length);
+  });
+
+
   // Support for Tipsy. If Tipsy module installed, add tipsy.     
   try {
     $('.term-names-wrapper').tipsy({fade: true, gravity: $.fn.tipsy.autoWE, delayIn: 0, delayOut: 500, trigger: 'hover', opacity: 0.8, offset: 0, title: function() { return $(this).find('.description').html();}, html: 1});
@@ -91,6 +97,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
     else {
       temp_string = '';
     }
+    $(this).parent().parent().parent().parent().find('.terms-count .entered').html($(this).parent().parent().children().length - 1);
     $(this).parent().parent().parent().parent().find('.form-text').val(temp_string);    
     $(this).parent().remove();
   });
@@ -115,6 +122,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       if (navigationIndex != 0) {
         var usernameValue = $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html();
         $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'>" + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").html() + "<a class='close-entered-term-name'>×</a></div>");
+        $(this).parent().parent().find('.terms-count .entered').html($(this).parent().find('#entered-term-names-wrapper').children().length);
         // Add the username to the original hidden input
         if ($(this).parent().parent().find('.form-text').val() == "")
           $(this).parent().parent().find('.form-text').val($(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
@@ -129,6 +137,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       else {
         if ($(this).parent().parent().find(".dropdown-term-names").css('display') == 'none') {
           $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'><div class='new-item' style='display: inline;'>" + $(this).val() + "</div><a class='close-entered-term-name'>×</a></div>");
+          $(this).parent().parent().find('.terms-count .entered').html($(this).parent().find('#entered-term-names-wrapper').children().length);
           if ($(this).parent().parent().find('.form-text').val() == "")
             $(this).parent().parent().find('.form-text').val('###' + $(this).val());
           else
@@ -206,6 +215,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       else {
         temp_string = '';
       }
+      $(this).parent().parent().parent().parent().find('.terms-count .entered').html($(this).parent().parent().children().length - 1);
       $(this).parent().parent().parent().parent().find('.form-text').val(temp_string);    
       $(this).parent().remove();
     });
@@ -218,6 +228,8 @@ Drupal.behaviors.autocomplete_dropbox = function() {
         $(this).parent().parent().find('.form-text').val($(this).children('.term-id').html());
       else
         $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + $(this).children('.term-id').html());
+      //Increase term count
+      $(this).parent().parent().find('.terms-count .entered').html($(this).parent().parent().find('#entered-term-names-wrapper').children().length);
       // Clear what needs to be cleared.
       $(this).parent().parent().find(".term-names-input").focus();
       $(this).parent().parent().find(".term-names-input").val('');
