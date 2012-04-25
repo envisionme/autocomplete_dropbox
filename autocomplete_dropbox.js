@@ -31,8 +31,10 @@ $(document).ready(function() {
 
 Drupal.behaviors.autocomplete_dropbox = function() {
 
-  // tipsy for autocomplete_dropbox
-  $('.term-names-wrapper').tipsy({fade: true, gravity: $.fn.tipsy.autoWE, delayIn: 0, delayOut: 500, trigger: 'hover', opacity: 0.8, offset: 0, title: function() { return $(this).find('.description').html();}, html: 1});
+  // Support for Tipsy. If Tipsy module installed, add tipsy.     
+  try {
+    $('.term-names-wrapper').tipsy({fade: true, gravity: $.fn.tipsy.autoWE, delayIn: 0, delayOut: 500, trigger: 'hover', opacity: 0.8, offset: 0, title: function() { return $(this).find('.description').html();}, html: 1});
+  } catch(e) {}
 
  
   function getDropdownData(vocabId) {
