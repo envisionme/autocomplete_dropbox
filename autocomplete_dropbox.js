@@ -33,7 +33,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
 
   // Set term counter
   $('.autocomplete-dropbox-field-wrapper').each(function() {
-    $(this).find('.autocomplete-dropbox-label .terms-count .entered').html($(this).find('#entered-term-names-wrapper').children().length);
+    $(this).find('.autocomplete-dropbox-label .terms-count .entered').html('0');
   });
 
 
