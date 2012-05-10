@@ -5,10 +5,6 @@
  * @author Willem Coetzee
  */
 
-/**
- * Using Drupal behaviours to declare main function
- */
-
 // We need this piece of code to disable form submit on enter. Thus far this is the only solution I can find.
 $(document).ready(function() {
  
@@ -29,6 +25,9 @@ $(document).ready(function() {
 
 });
 
+/**
+ * Using Drupal behaviours to declare main function
+ */
 Drupal.behaviors.autocomplete_dropbox = function() {
 
   // Set term counter
@@ -64,11 +63,41 @@ Drupal.behaviors.autocomplete_dropbox = function() {
     //return dropdownData;
     return Drupal.settings.autocomplete_dropbox["a"+vocabId];
   }
+  /**
+   * Get the term value by Id.
+   * 
+   * A helper function to get the term value by id or hash preceded value.
+   *
+   * @param termId: The term's id or something like this... ###brown.
+   * @param data: The data array in the same format as getDropDownData function's return value.
+   *
+   * @return: The value of the term if it exists, oherwise returns false.
+   */
+  function getTermValue(termId, data) {
+    for (var k = 0; k < data.length; k++) {
+      if( data[k]['id'] == termId )
+            return data[k]['value'];
+    }
+    return false;
+  }
 
   var navigationIndex = 0;
 
   $('.term-names-wrapper').each(function() {
     $(this).find('.description').html($(this).parent().find('.textfield').find('.description').html());
+    if ( $(this).parent().find('.form-text').val() ) {
+      ids = $(this).parent().find('.form-text').val().split(',');
+      for (var i = 0; i < ids.length; i++) {
+        if (ids[i].substr(0,1) == '#')
+          termValue = ids[i].substr(3);
+        else
+          termValue = getTermValue(ids[i], getDropdownData($(this).parent().find('.vocab-id').html()));
+        $(this).find('#entered-term-names-wrapper').append('<div class="entered-term-name"><div class="term-id">' + ids[i] + '</div>' + termValue + '<a class="close-entered-term-name">×</a></div>');
+        console.log(getTermValue(ids[i], getDropdownData($(this).parent().find('.vocab-id').html())));
+      }
+    }
+    else
+      console.log('Textfield does not have a value');
   });
 
   // The delete button next to each term
