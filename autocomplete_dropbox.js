@@ -32,7 +32,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
 
   // Set term counter
   $('.autocomplete-dropbox-field-wrapper').each(function() {
-    $(this).find('.autocomplete-dropbox-label .terms-count .entered').html('0');
+    $(this).find('.autocomplete-dropbox-label .terms-count .entered').html($(this).find('#entered-term-names-wrapper').children().length);
   });
 
 
@@ -85,8 +85,9 @@ Drupal.behaviors.autocomplete_dropbox = function() {
 
   $('.term-names-wrapper').each(function() {
     $(this).find('.description').html($(this).parent().find('.textfield').find('.description').html());
-    if ( $(this).parent().find('.form-text').val() ) {
-      ids = $(this).parent().find('.form-text').val().split(',');
+    ids = $(this).parent().find('.form-text').val().split(',');
+    if ( $(this).find('#entered-term-names-wrapper').find('.entered-term-name').length !=  ids.length) {
+      $(this).find('#entered-term-names-wrapper').html('');
       for (var i = 0; i < ids.length; i++) {
         if (ids[i].substr(0,1) == '#')
           termValue = ids[i].substr(3);
@@ -96,8 +97,6 @@ Drupal.behaviors.autocomplete_dropbox = function() {
         console.log(getTermValue(ids[i], getDropdownData($(this).parent().find('.vocab-id').html())));
       }
     }
-    else
-      console.log('Textfield does not have a value');
   });
 
   // The delete button next to each term
