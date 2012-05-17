@@ -93,8 +93,9 @@ Drupal.behaviors.autocomplete_dropbox = function() {
           termValue = ids[i].substr(3);
         else
           termValue = getTermValue(ids[i], getDropdownData($(this).parent().find('.vocab-id').html()));
-        $(this).find('#entered-term-names-wrapper').append('<div class="entered-term-name"><div class="term-id">' + ids[i] + '</div>' + termValue + '<a class="close-entered-term-name">×</a></div>');
-        console.log(getTermValue(ids[i], getDropdownData($(this).parent().find('.vocab-id').html())));
+        
+        if (termValue)
+          $(this).find('#entered-term-names-wrapper').append('<div class="entered-term-name"><div class="term-id">' + ids[i] + '</div>' + termValue + '<a class="close-entered-term-name">×</a></div>');
       }
     }
   });
