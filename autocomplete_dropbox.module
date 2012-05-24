@@ -237,7 +237,19 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
   //Send all the variables needed through to our javascript
   drupal_add_js(array('autocomplete_dropbox' => array('a'.$field['vocabulary_id'] => $terms_array), 'module_path' => base_path().drupal_get_path('module', 'autocomplete_dropbox')), 'setting');
 
-  $default_ids = explode(',', $items[$delta]['term_ids']);
+  $node_id = $form['nid']['#value'];
+  $terms = taxonomy_node_get_terms(node_load($node_id)); // Look at better ways than node_load. Perhaps already in $form!
+  //dpm($terms);
+
+  //$default_ids = explode(',', $items[$delta]['term_ids']);
+  
+  $default_ids = array();
+  // Rather check which terms the node is tagged for.
+  foreach ($terms as $term) {
+    if ($term->vid == $field['vocabulary_id'])
+      $default_ids[] = $term->tid;
+  }
+  
   $default_ids = array_filter($default_ids, 'strlen');
 
   $nice_default_values = '';
