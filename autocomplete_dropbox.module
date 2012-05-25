@@ -205,7 +205,7 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
             $new_term = $term;
         }
         //$node->taxonomy[] = $new_term;
-        $_SESSION['node_terms'][] = $taxonomy_term;
+        $_SESSION['node_terms'][] = $new_term;
         $array_to_save[] = $new_term->tid;
       }
     }
