@@ -176,6 +176,21 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
       }
 
     break;
+    case 'load':
+      $terms = taxonomy_node_get_terms($node);
+      $vocabulary_id = $field['vocabulary_id'];
+  
+      $term_names_array = array();
+
+      // Rather check which terms the node is tagged for.
+      foreach ($terms as $term) {
+      if ($term->vid == $vocabulary_id)
+        $term_names_array[] = $term->name;
+      }
+ 
+      $items[0]['display'] = implode(', ', $term_names_array);
+ 
+    break;
   }
 }
 
