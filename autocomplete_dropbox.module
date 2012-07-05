@@ -146,50 +146,15 @@ function autocomplete_dropbox_field_settings($op, $field) {
   }
 }
 
-function autocomplete_dropbox_form_alter(&$form, $form_state, $form_id) {
-  if($form_id == 'uprofile_node_form') {
-    // Use this to store temporary values.  
-    if(!isset($_SESSION['node_terms']))
-    {
-      $_SESSION['node_terms'] = array();
-    }
-    else {
-      $_SESSION['node_terms'] = array();
-    }
-  }
-}
-
 /**
 * Implementation of hook_field().
 */
 function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page) {
   switch ($op) {      
     case 'presave':
-
       foreach ($items as $delta => $value) {
         _autocomplete_dropbox_process($items[$delta], $delta, $field, $node);
       }
-
-      // Do final tagging here.
-      foreach ($_SESSION['node_terms'] as $node_taxonomy_term) {
-        $node->taxonomy[] = $node_taxonomy_term;
-      }
-
-    break;
-    case 'load':
-      $terms = taxonomy_node_get_terms($node);
-      $vocabulary_id = $field['vocabulary_id'];
-  
-      $term_names_array = array();
-
-      // Rather check which terms the node is tagged for.
-      foreach ($terms as $term) {
-      if ($term->vid == $vocabulary_id)
-        $term_names_array[] = $term->name;
-      }
- 
-      $items[0]['display'] = implode(', ', $term_names_array);
- 
     break;
   }
 }
@@ -199,36 +164,28 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 */
 
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
-
   $term_ids = explode(',', $item['term_ids']);
   $array_to_save = array(); 
+  //print_r($node->taxonomy);
+  //break;
+  $node->taxonomy['tags'][$field['vocabulary_id']] = '';
   foreach($term_ids as $term_id) {
     if(is_numeric($term_id)) {
       $array_to_save[] = $term_id;
       $taxonomy_term = taxonomy_get_term($term_id);
-      //$node->taxonomy[] = $taxonomy_term;
-      $_SESSION['node_terms'][] = $taxonomy_term;
+      $node->taxonomy[] = $taxonomy_term;
     }
     else {
       if(strlen($term_id) > 3) {
         $newterm = array('vid' => $field['vocabulary_id'], 'name' => substr($term_id, 3));
         taxonomy_save_term($newterm);
         $terms = taxonomy_get_term_by_name(substr($term_id, 3));
-        $new_term = '';
-        foreach ($terms as $term) {
-          if ($term->vid == $field['vocabulary_id'])
-            $new_term = $term;
-        }
-        //$node->taxonomy[] = $new_term;
-        $_SESSION['node_terms'][] = $new_term;
-        $array_to_save[] = $new_term->tid;
+        $term = array_shift($terms);
+        $node->taxonomy[] = $term;
+        $array_to_save[] = $term->tid;
       }
     }
   }
-
-  // dpm($_SESSION['node_terms']);
-
-  //dpm($node->taxonomy);
   $item['term_ids'] = implode(',', $array_to_save);
 }
 /**
@@ -280,21 +237,8 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
   //Send all the variables needed through to our javascript
   drupal_add_js(array('autocomplete_dropbox' => array('a'.$field['vocabulary_id'] => $terms_array), 'module_path' => base_path().drupal_get_path('module', 'autocomplete_dropbox')), 'setting');
 
-  $node_id = $form['nid']['#value'];
-  $terms = taxonomy_node_get_terms(node_load($node_id)); // Look at better ways than node_load. Perhaps already in $form!
-  //dpm($terms);
-  //dpm(node_load($node_id));
-
-  //$default_ids = explode(',', $items[$delta]['term_ids']);
-  
-  $default_ids = array();
-  // Rather check which terms the node is tagged for.
-  foreach ($terms as $term) {
-    if ($term->vid == $field['vocabulary_id'])
-      $default_ids[] = $term->tid;
-  }
-  
-  //$default_ids = array_filter($default_ids, 'strlen'); // Make sure there are no empty tags... now we don;t need this anymore as we check for what the node is tagged with.
+  $default_ids = explode(',', $items[$delta]['term_ids']);
+  $default_ids = array_filter($default_ids, 'strlen');
 
   $nice_default_values = '';
 
@@ -357,24 +301,16 @@ function autocomplete_dropbox_field_formatter_info() {
 * Theme function for 'default' companyfield formatter.
 */
 function theme_autocomplete_dropbox_formatter_default($element) {
-  $terms = taxonomy_node_get_terms(node_load($element['#node']->nid));
-  $field = content_fields($element['#field_name'], $element['#type_name']);
-  $vocabulary_id = $field['vocabulary_id'];
-  //dpm($vocabulary_id);
-  //$term_id_array = explode(',', $element['#item']['term_ids']);
+  $term_id_array = explode(',', $element['#item']['term_ids']);
   $term_names_array = array();
-
-  // Rather check which terms the node is tagged for.
-  foreach ($terms as $term) {
-    if ($term->vid == $vocabulary_id)
-      $term_names_array[] = $term->name;
-  }
-
-  //$output = '';
-  //foreach($term_id_array as $term_id) {
-  //  $next_term = taxonomy_get_term($term_id);
-  //  $term_names_array[] = $next_term->name;
-  //} 
+  $output = '';
+  foreach($term_id_array as $term_id) {
+    try {
+      $next_term = taxonomy_get_term($term_id);
+      $term_names_array[] = $next_term->name;
+    }
+    catch { /*not critical*/ }
+  } 
   return implode(', ', $term_names_array);
 }
 
