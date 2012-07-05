@@ -306,7 +306,8 @@ function theme_autocomplete_dropbox_formatter_default($element) {
   $output = '';
   foreach($term_id_array as $term_id) {
       $next_term = taxonomy_get_term($term_id);
-      $term_names_array[] = $next_term->name;
+      if ( isset($next_term->name) )
+        $term_names_array[] = $next_term->name;
   } 
   return implode(', ', $term_names_array);
 }
