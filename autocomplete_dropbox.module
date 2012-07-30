@@ -46,26 +46,17 @@ function autocomplete_dropbox_autosuggest() {
   echo json_encode($data);
 }
 
-
-
-// A simple test hook we'll use later
-
 // Example variable $layouts
 $strings = array();
 
 // The hook will hook other modules on our function
 $strings = module_invoke_all('autocomplete_dropbox_theme_dropdown_item');
 
-//print_r($strings);
-
 // The returned value is an array of return values of the hook implementations
 foreach($strings as $next_string){
   // Do stuff with the returned variables
   print $next_string;
 }
-
-//print_r(module_implements('autocomplete_dropbox_theme_dropdown_item'));
-//print_r($strings);
 
 //Add the styling needed
 drupal_add_css(drupal_get_path('module', 'autocomplete_dropbox') . '/autocomplete_dropbox.css');
@@ -166,8 +157,6 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
   $term_ids = explode(',', $item['term_ids']);
   $array_to_save = array(); 
-  //print_r($node->taxonomy);
-  //break;
   $node->taxonomy['tags'][$field['vocabulary_id']] = '';
   foreach($term_ids as $term_id) {
     if(is_numeric($term_id)) {
