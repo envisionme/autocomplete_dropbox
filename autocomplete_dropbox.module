@@ -153,7 +153,6 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 /**
 * Implementation of hook_process().
 */
-
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
   $term_ids = explode(',', $item['term_ids']);
   $array_to_save = array(); 
@@ -223,10 +222,17 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
  
   //Add the javascript needed
   drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox') . '/autocomplete_dropbox.js');
+
   //Send all the variables needed through to our javascript
   drupal_add_js(array('autocomplete_dropbox' => array('a'.$field['vocabulary_id'] => $terms_array), 'module_path' => base_path().drupal_get_path('module', 'autocomplete_dropbox')), 'setting');
 
-  $default_ids = explode(',', $items[$delta]['term_ids']);
+  $default_ids = array();
+  $node_terms = taxonomy_node_get_terms(node_load($form['nid']['#value']));
+  foreach ( $node_terms as $taxonomy_term ) {
+    if ( $taxonomy_term->vid == $field['vocabulary_id'] )
+      $default_ids[] = $taxonomy_term->tid;
+  }
+
   $default_ids = array_filter($default_ids, 'strlen');
 
   $nice_default_values = '';
@@ -290,7 +296,16 @@ function autocomplete_dropbox_field_formatter_info() {
 * Theme function for 'default' companyfield formatter.
 */
 function theme_autocomplete_dropbox_formatter_default($element) {
-  $term_id_array = explode(',', $element['#item']['term_ids']);
+
+  $field = content_fields($element['#field_name']);
+  $term_id_array = array();
+  $node_terms = taxonomy_node_get_terms(node_load($element['#node']->nid));
+
+  foreach ( $node_terms as $taxonomy_term ) {
+    if ( $taxonomy_term->vid == $field['vocabulary_id'] )
+      $term_id_array[] = $taxonomy_term->tid;
+  }
+
   $term_names_array = array();
   $output = '';
   foreach($term_id_array as $term_id) {
