@@ -154,14 +154,15 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 * Implementation of hook_process().
 */
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
+  dpm($item['term_ids']);
   $term_ids = explode(',', $item['term_ids']);
   $array_to_save = array(); 
-  $node->taxonomy['tags'][$field['vocabulary_id']] = '';
+  $node->taxonomy[$field['vocabulary_id']] = '';
   foreach($term_ids as $term_id) {
     if(is_numeric($term_id)) {
       $array_to_save[] = $term_id;
       $taxonomy_term = taxonomy_get_term($term_id);
-      $node->taxonomy[] = $taxonomy_term;
+      $node->taxonomy[$field['vocabulary_id']][] = $taxonomy_term->tid;
     }
     else {
       if(strlen($term_id) > 3) {
@@ -169,11 +170,14 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
         taxonomy_save_term($newterm);
         $terms = taxonomy_get_term_by_name(substr($term_id, 3));
         $term = array_shift($terms);
-        $node->taxonomy[] = $term;
+        $node->taxonomy[$field['vocabulary_id']][] = $term->tid;
         $array_to_save[] = $term->tid;
       }
     }
   }
+
+  //dpm($node->taxonomy);
+
   $item['term_ids'] = implode(',', $array_to_save);
 }
 /**
