@@ -154,7 +154,6 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 * Implementation of hook_process().
 */
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
-  dpm($item['term_ids']);
   $term_ids = explode(',', $item['term_ids']);
   $array_to_save = array(); 
   $node->taxonomy[$field['vocabulary_id']] = '';
@@ -175,8 +174,6 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
       }
     }
   }
-
-  //dpm($node->taxonomy);
 
   $item['term_ids'] = implode(',', $array_to_save);
 }
