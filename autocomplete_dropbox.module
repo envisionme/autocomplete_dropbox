@@ -157,6 +157,22 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
   $term_ids = explode(',', $item['term_ids']);
   $array_to_save = array(); 
   $node->taxonomy[$field['vocabulary_id']] = '';
+  $taxonomy_array = array();
+  foreach ($node->taxonomy as $term) {
+    if(is_object($term)) {
+      if($term->vid == $field['vocabulary_id']) { 
+        //do nothing
+      }
+      else {
+        $taxonomy_array[] = $term;
+      }
+    }
+    else {
+      $taxonomy_array[] = $term;
+    }
+  }
+  $node->taxonomy = $taxonomy_array;
+  
   foreach($term_ids as $term_id) {
     if(is_numeric($term_id)) {
       $array_to_save[] = $term_id;
