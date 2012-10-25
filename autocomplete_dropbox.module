@@ -317,7 +317,7 @@ function theme_autocomplete_dropbox_formatter_default($element) {
   $field = content_fields($element['#field_name']);
   $term_id_array = array();
   $node_terms = array();
-  if ($element['#node']->nid) {
+  if (is_object($element['#node'])) {
     $terms_node = node_load($element['#node']->nid);
     $node_terms = taxonomy_node_get_terms($terms_node);
   }
