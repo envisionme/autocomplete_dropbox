@@ -23,6 +23,13 @@ $(document).ready(function() {
     }
   });
 
+  $(window).keydown(function(event){
+    if((event.keyCode == 9) && ($(".term-names-input").is(":focus"))) {
+      event.preventDefault();
+      return false;
+    }
+  });
+
 });
 
 /**
@@ -186,6 +193,47 @@ Drupal.behaviors.autocomplete_dropbox = function() {
         }
       }
     }
+
+    else if (keyCode == 9) { //Tab key
+      if ($(this).val() != '') {
+        if (navigationIndex != 0) {
+          var usernameValue = $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html();
+          $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'>" + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").html() + "<a class='close-entered-term-name'>×</a></div>");
+          $(this).parent().parent().find('.terms-count .entered').html($(this).parent().find('#entered-term-names-wrapper').children().length);
+          // Add the username to the original hidden input
+          if ($(this).parent().parent().find('.form-text').val() == "")
+            $(this).parent().parent().find('.form-text').val($(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
+          else
+            $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + $(this).parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +") .term-id").html());
+          // Clear what needs to be cleared.
+          $(this).val('');
+          $(this).parent().parent().find(".dropdown-term-names").html('');
+          $(this).parent().parent().find(".dropdown-term-names").hide();
+          navigationIndex = 0;
+        }
+        else {
+          var currentDropdownItems = new Array();
+          $(this).parent().parent().find(".dropdown-term-names").find(".term-names-dropdown-item").each(function() {
+            currentDropdownItems.push($(this).html().substring($(this).html().indexOf('</div>') + 6 ).toUpperCase());
+          });
+          var inDropdown = jQuery.inArray($(this).val().toUpperCase(), currentDropdownItems);
+          console.log($(this).val());
+          console.log(currentDropdownItems);
+          console.log(inDropdown);
+          if ($(this).parent().parent().find(".dropdown-term-names").css('display') == 'none' || inDropdown == -1 ) {
+            $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'><div class='new-item' style='display: inline;'>" + $(this).val() + "</div><a class='close-entered-term-name'>×</a></div>");
+            $(this).parent().parent().find('.terms-count .entered').html($(this).parent().find('#entered-term-names-wrapper').children().length);
+            if ($(this).parent().parent().find('.form-text').val() == "")
+              $(this).parent().parent().find('.form-text').val('###' + $(this).val());
+            else
+              $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + '###' + $(this).val());
+            $(this).val('');
+            $(this).parent().parent().find(".dropdown-term-names").hide();
+          }
+        }
+      }
+    }
+
     // Down arrow pressed
     else if (keyCode == 40) {
       $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").css("background-color", "white");
