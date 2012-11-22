@@ -17,7 +17,7 @@
 
 .entered-term-name {
   margin-right: 3px;
-  display: inline;
+  display: block;
   float: left;
   padding: 2px 4px;
   background-color: #DCE1E5;
@@ -34,7 +34,6 @@
   padding: 0 2px;
   color: #999999;
   cursor: pointer;
-  float: right;
   font-family: "Helvetica",helvetica,arial,sans-serif;
   font-size: 14px;
   font-weight: 700;
