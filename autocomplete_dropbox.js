@@ -1,19 +1,19 @@
 /**
  * @file
  * JS file of autocomplete_contacts. Does everything needed
- * 
+ *
  * @author Willem Coetzee
  */
 
 // We need this piece of code to disable form submit on enter. Thus far this is the only solution I can find.
-$(document).ready(function() {
- 
-  //Workaround for dropdown not going away when clicking elsewhere on the screen 
+/*$(document).ready(function() {
+
+  //Workaround for dropdown not going away when clicking elsewhere on the screen
   $("body").click(function(e) {
     if(!((e.target.id == "term-names-wrapper-0") || (e.target.id == "term-names-input-0") || ((e.target.id == "term-names-dropdown-item-0")))){
         $(".dropdown-term-names").hide();
         $(".term-names-input").val("");
-      }     
+      }
   });
 
   $(window).keydown(function(event){
@@ -30,7 +30,7 @@ $(document).ready(function() {
     }
   });
 
-});
+});*/
 
 /**
  * Using Drupal behaviours to declare main function
@@ -43,12 +43,12 @@ Drupal.behaviors.autocomplete_dropbox = function() {
   });
 
 
-  // Support for Tipsy. If Tipsy module installed, add tipsy.     
+  // Support for Tipsy. If Tipsy module installed, add tipsy.
   try {
     $('.term-names-wrapper').tipsy({fade: true, gravity: $.fn.tipsy.autoWE, delayIn: 0, delayOut: 500, trigger: 'hover', opacity: 0.8, offset: 0, title: function() { return $(this).find('.description').html();}, html: 1});
   } catch(e) {}
 
- 
+
   function getDropdownData(vocabId) {
 
     //var dropdownData = [];
@@ -64,7 +64,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
     //      innerArray["id"] = data[i].tid;
     //      innerArray["value"] = data[i].name;
     //      dropdownData[i] = innerArray;
-    //    }  
+    //    }
     //  }
     //});
     //return dropdownData;
@@ -72,7 +72,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
   }
   /**
    * Get the term value by Id.
-   * 
+   *
    * A helper function to get the term value by id or hash preceded value.
    *
    * @param termId: The term's id or something like this... ###brown.
@@ -92,15 +92,16 @@ Drupal.behaviors.autocomplete_dropbox = function() {
 
   $('.term-names-wrapper').each(function() {
     $(this).find('.description').html($(this).parent().find('.textfield').find('.description').html());
-    ids = $(this).parent().find('.form-text').val().split(',');
+    var ids = $(this).parent().find('.form-text').val().split(',');
     if ( $(this).find('#entered-term-names-wrapper').find('.entered-term-name').length !=  ids.length) {
       $(this).find('#entered-term-names-wrapper').html('');
       for (var i = 0; i < ids.length; i++) {
+        var termValue;
         if (ids[i].substr(0,1) == '#')
           termValue = ids[i].substr(3);
         else
           termValue = getTermValue(ids[i], getDropdownData($(this).parent().find('.vocab-id').html()));
-        
+
         if (termValue)
           $(this).find('#entered-term-names-wrapper').append('<div class="entered-term-name"><div class="term-id">' + ids[i] + '</div>' + termValue + '<a class="close-entered-term-name">×</a></div>');
       }
@@ -116,13 +117,13 @@ Drupal.behaviors.autocomplete_dropbox = function() {
         deleteIndex = i;
     }
     temp_array.splice(deleteIndex,1);
-      
+
     //Now we use this code to make a string again since join doesnt want to work
     if (temp_array.length == 1) {
-      temp_string = temp_array[0];
+      var temp_string = temp_array[0];
     }
     else if (temp_array.length > 1) {
-      temp_string = '';
+      var temp_string = '';
       for (var k = 0; k < temp_array.length; k++) {
         if (k == 0)
           temp_string = temp_array[k];
@@ -134,7 +135,7 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       temp_string = '';
     }
     $(this).parent().parent().parent().parent().find('.terms-count .entered').html($(this).parent().parent().children().length - 1);
-    $(this).parent().parent().parent().parent().find('.form-text').val(temp_string);    
+    $(this).parent().parent().parent().parent().find('.form-text').val(temp_string);
     $(this).parent().remove();
   });
 
@@ -237,14 +238,14 @@ Drupal.behaviors.autocomplete_dropbox = function() {
     // Down arrow pressed
     else if (keyCode == 40) {
       $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").css("background-color", "white");
-      navigationIndex = navigationIndex+1;     
+      navigationIndex = navigationIndex+1;
       $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").css("background-color", "#ebeef0");
     }
     // Up arrow pressed
     else if (keyCode == 38) {
       $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").css("background-color", "white");
-      navigationIndex = navigationIndex-1;     
-      $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").css("background-color", "#ebeef0");   
+      navigationIndex = navigationIndex-1;
+      $(this).parent().parent().parent().find(".term-names-dropdown-item:nth-child("+ navigationIndex +")").css("background-color", "#ebeef0");
     }
     else {
       if($(this).parent().parent().find('.terms-count .entered').html() == $(this).parent().parent().find('.terms-count .allowed').html()){
@@ -253,21 +254,21 @@ Drupal.behaviors.autocomplete_dropbox = function() {
       else {
         $(this).parent().parent().find('.dropdown-term-names').html('');
         $(this).parent().parent().find('.dropdown-term-names').css('display', 'block');
-        vocabId = $(this).parent().parent().find(".vocab-id").html();
+        var vocabId = $(this).parent().parent().find(".vocab-id").html();
         $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber-loading.gif)");
-        dropdownData = getDropdownData(vocabId);
+        var dropdownData = getDropdownData(vocabId);
         //console.log(dropdownData);
         var dropdownLength = dropdownData.length;
-        flag_dropdown_empty = true;
+        var flag_dropdown_empty = true;
         for (var k = 0; k < dropdownLength; k++) {
           if(($(this).val() != '') && (dropdownData[k]['value'].toUpperCase().indexOf($(this).val().toUpperCase(), 0) > -1)) {
-            flag_dropdown_empty = false; 
+            flag_dropdown_empty = false;
             $(this).parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item' id='term-names-dropdown-item-0'><div class='term-id'>" + dropdownData[k]['id'] + "</div>" + dropdownData[k]['value'] + "</div>");
             $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
           }
           else {
             navigationIndex = 0;
-          } 
+          }
         }
         if (flag_dropdown_empty)
           $(this).parent().parent().find('.dropdown-term-names').hide();
@@ -291,13 +292,13 @@ Drupal.behaviors.autocomplete_dropbox = function() {
           deleteIndex = i;
       }
       temp_array.splice(deleteIndex,1);
-      
+
       //Now we use this code to make a string again since join doesnt want to work
       if (temp_array.length == 1) {
-        temp_string = temp_array[0];
+        var temp_string = temp_array[0];
       }
       else if (temp_array.length > 1) {
-        temp_string = '';
+        var temp_string = '';
         for (var k = 0; k < temp_array.length; k++) {
           if (k == 0)
             temp_string = temp_array[k];
@@ -306,10 +307,10 @@ Drupal.behaviors.autocomplete_dropbox = function() {
         }
       }
       else {
-        temp_string = '';
+        var temp_string = '';
       }
       $(this).parent().parent().parent().parent().find('.terms-count .entered').html($(this).parent().parent().children().length - 1);
-      $(this).parent().parent().parent().parent().find('.form-text').val(temp_string);    
+      $(this).parent().parent().parent().parent().find('.form-text').val(temp_string);
       $(this).parent().remove();
     });
 
