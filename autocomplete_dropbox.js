@@ -6,7 +6,7 @@
  */
 
 // We need this piece of code to disable form submit on enter. Thus far this is the only solution I can find.
-/*$(document).ready(function() {
+$(document).ready(function() {
 
   //Workaround for dropdown not going away when clicking elsewhere on the screen
   $("body").click(function(e) {
@@ -30,7 +30,7 @@
     }
   });
 
-});*/
+});
 
 /**
  * Using Drupal behaviours to declare main function
