@@ -5,9 +5,10 @@
  * @author Willem Coetzee
  */
 
-// We need this piece of code to disable form submit on enter. Thus far this is the only solution I can find.
-$(document).ready(function() {
-
+/**
+ * Using Drupal behaviours to declare main function
+ */
+Drupal.behaviors.autocomplete_dropbox = function() {
   //Workaround for dropdown not going away when clicking elsewhere on the screen
   $("body").click(function(e) {
     if(!((e.target.id == "term-names-wrapper-0") || (e.target.id == "term-names-input-0") || ((e.target.id == "term-names-dropdown-item-0")))){
@@ -16,26 +17,16 @@ $(document).ready(function() {
       }
   });
 
-  $(window).keydown(function(event){
-    if(event.keyCode == 13) {
-      event.preventDefault();
+  $('.term-names-wrapper').keydown(function(e) {
+    if(e.keyCode == 13) {
+      e.preventDefault();
+      return false;
+    }
+    if((e.keyCode == 9) && ($(".term-names-input").is(":focus"))) {
+      e.preventDefault();
       return false;
     }
   });
-
-  $(window).keydown(function(event){
-    if((event.keyCode == 9) && ($(".term-names-input").is(":focus"))) {
-      event.preventDefault();
-      return false;
-    }
-  });
-
-});
-
-/**
- * Using Drupal behaviours to declare main function
- */
-Drupal.behaviors.autocomplete_dropbox = function() {
 
   // Set term counter
   $('.autocomplete-dropbox-field-wrapper').each(function() {
