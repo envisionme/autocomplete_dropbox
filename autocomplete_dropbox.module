@@ -155,12 +155,12 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 */
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
   $term_ids = explode(',', $item['term_ids']);
-  $array_to_save = array(); 
+  $array_to_save = array();
   $node->taxonomy[$field['vocabulary_id']] = '';
   $taxonomy_array = array();
   foreach ($node->taxonomy as $term) {
     if(is_object($term)) {
-      if($term->vid == $field['vocabulary_id']) { 
+      if($term->vid == $field['vocabulary_id']) {
         //do nothing
       }
       else {
@@ -172,17 +172,14 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
     }
   }
   $node->taxonomy = $taxonomy_array;
-  //dpm($node->taxonomy);
-  
+
   foreach($term_ids as $term_id) {
     if(is_numeric($term_id)) {
       $array_to_save[] = $term_id;
       $taxonomy_term = taxonomy_get_term($term_id);
-      //dpm($taxonomy_term);
-      //$node->taxonomy[$field['vocabulary_id']][] = $taxonomy_term->tid;
-      $node->taxonomy[] = $taxonomy_term;
+      $node->taxonomy[$field['vocabulary_id']][] = $taxonomy_term->tid;
     }
-    else {
+ else {
       if(strlen($term_id) > 3) {
         $newterm = array('vid' => $field['vocabulary_id'], 'name' => substr($term_id, 3));
         taxonomy_save_term($newterm);
@@ -193,8 +190,6 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
       }
     }
   }
-
-  //dpm($node->taxonomy);
 
   $item['term_ids'] = implode(',', $array_to_save);
 }
