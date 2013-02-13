@@ -172,12 +172,15 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
     }
   }
   $node->taxonomy = $taxonomy_array;
+  //dpm($node->taxonomy);
   
   foreach($term_ids as $term_id) {
     if(is_numeric($term_id)) {
       $array_to_save[] = $term_id;
       $taxonomy_term = taxonomy_get_term($term_id);
-      $node->taxonomy[$field['vocabulary_id']][] = $taxonomy_term->tid;
+      //dpm($taxonomy_term);
+      //$node->taxonomy[$field['vocabulary_id']][] = $taxonomy_term->tid;
+      $node->taxonomy[] = $taxonomy_term;
     }
     else {
       if(strlen($term_id) > 3) {
@@ -190,6 +193,8 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
       }
     }
   }
+
+  //dpm($node->taxonomy);
 
   $item['term_ids'] = implode(',', $array_to_save);
 }
@@ -245,6 +250,7 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
 
   $default_ids = array();
   $node_terms = taxonomy_node_get_terms(node_load($form['nid']['#value']));
+  //dpm($node_terms);
   foreach ( $node_terms as $taxonomy_term ) {
     if ( $taxonomy_term->vid == $field['vocabulary_id'] )
       $default_ids[] = $taxonomy_term->tid;
@@ -321,6 +327,8 @@ function theme_autocomplete_dropbox_formatter_default($element) {
     $terms_node = node_load($element['#node']->nid);
     $node_terms = taxonomy_node_get_terms($terms_node);
   }
+
+  //dpm($node_terms);
 
   foreach ( $node_terms as $taxonomy_term ) {
     if ( $taxonomy_term->vid == $field['vocabulary_id'] )

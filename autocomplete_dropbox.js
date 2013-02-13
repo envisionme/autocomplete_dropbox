@@ -41,23 +41,41 @@ try {
 
 function getDropdownData(vocabId) {
 
-  //var dropdownData = [];
-  //$.ajax({
-  //  url: "http://dev.nojoshmo.com/autocomplete_dropbox.json?vid="+vocabId,
-  //  async: false,
-  //  dataType: 'json',
-  //  success: function (json) {
-  //    data = json;
-  //    dropdownData = new Array();
-  //    for(var i in data) {
-  //      var innerArray = new Array();
-  //      innerArray["id"] = data[i].tid;
-  //      innerArray["value"] = data[i].name;
-  //      dropdownData[i] = innerArray;
-  //    }
-  //  }
-  //});
-  //return dropdownData;
+  var dropdownData = [];
+  /*$.ajax({
+    url: "https://www.envisionme.co.za/autocomplete_dropbox.json?vid="+vocabId,
+    async: false,
+    dataType: 'json',
+    success: function (json) {
+      data = json;
+      dropdownData = new Array();
+      for(var i in data) {
+        var innerArray = new Array();
+        innerArray["id"] = data[i].tid;
+        innerArray["value"] = data[i].name;
+        dropdownData[i] = innerArray;
+      }
+    }
+  });
+
+  return dropdownData;*/
+
+  /*$.ajax({
+    url: "https://localhost:3000/" + vocabId + "/a",
+    async: false,
+    dataType: 'json',
+    success: function (json) {
+      data = json;
+      dropdownData = new Array();
+      for(var i in data) {
+        var innerArray = new Array();
+        innerArray["id"] = data[i].tid;
+        innerArray["value"] = data[i].name;
+        dropdownData[i] = innerArray;
+      }
+    }
+  });*/
+
   return Drupal.settings.autocomplete_dropbox["a"+vocabId];
 }
   
@@ -82,6 +100,7 @@ function getTermValue(termId, data) {
 var navigationIndex = 0;
 
 $('.term-names-wrapper').each(function() {
+  $(this).className = $(this).addClass('otherClass');
   $(this).find('.description').html($(this).parent().find('.textfield').find('.description').html());
   var ids = $(this).parent().find('.form-text').val().split(',');
   if ( $(this).find('#entered-term-names-wrapper').find('.entered-term-name').length !=  ids.length) {
@@ -97,6 +116,7 @@ $('.term-names-wrapper').each(function() {
         $(this).find('#entered-term-names-wrapper').append('<div class="entered-term-name"><div class="term-id">' + ids[i] + '</div>' + termValue + '<a class="close-entered-term-name">×</a></div>');
     }
   }
+  $(this).className = $(this).addClass('autocomplete-' + $(this).parent().find('.vocab-id').html());
 });
 
 // The delete button next to each term
@@ -242,7 +262,90 @@ $(".term-names-wrapper").click(function(e) {
         $(this).val('');
       }
       else {
-        $(this).parent().parent().find('.dropdown-term-names').html('');
+
+        var vocabId = $(this).parent().parent().find(".vocab-id").html();
+        //var domdropdowntermnames = $(this).parent().parent().parent().find('.dropdown-term-names');
+        var domdropdowntermnames = $('.autocomplete-' + vocabId).find('.dropdown-term-names');
+        //var domcontainer = $(this).parent();
+        var domcontainer = $('.autocomplete-' + vocabId);
+        var _this = $('.autocomplete-' + vocabId).find('.term-names-input');
+
+        $.ajax({
+          url: "https://www.envisionme.co.za/autocomplete_dropbox.json?vid="+vocabId,
+          async: true,
+          dataType: 'json',
+          success: function (json) {
+
+            data = json;
+            var dropdownData = new Array();
+            for(var i in data) {
+              var innerArray = new Array();
+              innerArray["id"] = data[i].tid;
+              innerArray["value"] = data[i].name;
+              dropdownData[i] = innerArray;
+            }
+
+           //******
+
+          _this.parent().parent().find('.dropdown-term-names').html('');
+          _this.parent().parent().find('.dropdown-term-names').css('display', 'block');
+          _this.parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber-loading.gif)");
+          var dropdownLength = dropdownData.length;
+          var flag_dropdown_empty = true;
+          for (var k = 0; k < dropdownLength; k++) {
+            if((_this.val() != '') && (dropdownData[k]['value'].toUpperCase().indexOf(_this.val().toUpperCase(), 0) > -1)) {
+              flag_dropdown_empty = false;
+              _this.parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item' id='term-names-dropdown-item-0'><div class='term-id'>" + dropdownData[k]['id'] + "</div>" + dropdownData[k]['value'] + "</div>");
+              _this.parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
+            }
+            else {
+              navigationIndex = 0;
+            }
+          }
+          if (flag_dropdown_empty)
+            _this.parent().parent().find('.dropdown-term-names').hide();
+          _this.parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
+
+
+
+
+
+
+        /*_this.parent().parent().find(".term-names-dropdown-item").click(function() {
+          $(this).parent().parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'>" + $(this).html() + "<a class='close-entered-term-name'>×</a></div>");
+          // Add the username to the original hidden input
+          if ($(this).parent().parent().find('.form-text').val() == "")
+            $(this).parent().parent().find('.form-text').val($(this).children('.term-id').html());
+          else
+            $(this).parent().parent().find('.form-text').val($(this).parent().parent().find('.form-text').val() + ',' + $(this).children('.term-id').html());
+          //Increase term count
+          $(this).parent().parent().find('.terms-count .entered').html($(this).parent().parent().find('#entered-term-names-wrapper').children().length);
+          // Clear what needs to be cleared.
+          $(this).parent().parent().find(".term-names-input").focus();
+          $(this).parent().parent().find(".term-names-input").val('');
+          $(this).parent().parent().find(".term-names-input").trigger(jQuery.Event('keyup', {which: 26})); // This is a bit of trickery... I just trigger a key-up event on the input for other stuff to work
+          $(this).parent().parent().find(".dropdown-term-names").html('');
+          $(this).parent().parent().find(".dropdown-term-names").hide();
+          navigationIndex = 0;
+        });*/
+
+
+
+
+
+
+
+
+        //*******
+
+
+
+
+          }
+        });
+
+
+        /*$(this).parent().parent().find('.dropdown-term-names').html('');
         $(this).parent().parent().find('.dropdown-term-names').css('display', 'block');
         var vocabId = $(this).parent().parent().find(".vocab-id").html();
         $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber-loading.gif)");
@@ -262,7 +365,7 @@ $(".term-names-wrapper").click(function(e) {
         }
         if (flag_dropdown_empty)
           $(this).parent().parent().find('.dropdown-term-names').hide();
-        $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
+        $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");*/
       }
     }
 
