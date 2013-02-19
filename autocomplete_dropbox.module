@@ -156,7 +156,7 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
   $term_ids = explode(',', $item['term_ids']);
   $array_to_save = array();
-  $node->taxonomy[$field['vocabulary_id']] = '';
+  //$node->taxonomy[$field['vocabulary_id']] = '';
   $taxonomy_array = array();
   foreach ($node->taxonomy as $term) {
     if(is_object($term)) {
@@ -164,11 +164,11 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
         //do nothing
       }
       else {
-        $taxonomy_array[] = $term;
+        $taxonomy_array[$term->tid] = $term;
       }
     }
     else {
-      $taxonomy_array[] = $term;
+      $taxonomy_array[$term->tid] = $term;
     }
   }
   $node->taxonomy = $taxonomy_array;
@@ -177,7 +177,7 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
     if(is_numeric($term_id)) {
       $array_to_save[] = $term_id;
       $taxonomy_term = taxonomy_get_term($term_id);
-      $node->taxonomy[$field['vocabulary_id']][] = $taxonomy_term->tid;
+      $node->taxonomy[$taxonomy_term->tid] = $taxonomy_term;
     }
  else {
       if(strlen($term_id) > 3) {
@@ -185,7 +185,7 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
         taxonomy_save_term($newterm);
         $terms = taxonomy_get_term_by_name(substr($term_id, 3));
         $term = array_shift($terms);
-        $node->taxonomy[$field['vocabulary_id']][] = $term->tid;
+        $node->taxonomy[$term->tid] = $term;
         $array_to_save[] = $term->tid;
       }
     }
@@ -241,7 +241,7 @@ function autocomplete_dropbox_widget(&$form, &$form_state, $field, $items, $delt
   drupal_add_js(drupal_get_path('module', 'autocomplete_dropbox') . '/autocomplete_dropbox.js');
 
   //Send all the variables needed through to our javascript
-  drupal_add_js(array('autocomplete_dropbox' => array('a'.$field['vocabulary_id'] => $terms_array), 'module_path' => base_path().drupal_get_path('module', 'autocomplete_dropbox')), 'setting');
+  //drupal_add_js(array('autocomplete_dropbox' => array('a'.$field['vocabulary_id'] => $terms_array), 'module_path' => base_path().drupal_get_path('module', 'autocomplete_dropbox')), 'setting');
 
   $default_ids = array();
   $node_terms = taxonomy_node_get_terms(node_load($form['nid']['#value']));

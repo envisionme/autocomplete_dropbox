@@ -39,11 +39,11 @@ try {
   $('.term-names-wrapper').tipsy({fade: true, gravity: $.fn.tipsy.autoWE, delayIn: 0, delayOut: 500, trigger: 'hover', opacity: 0.8, offset: 0, title: function() { return $(this).find('.description').html();},   html: 1});
 } catch(e) {}
 
-function getDropdownData(vocabId) {
+/*function getDropdownData(vocabId) {
 
-  var dropdownData = [];
+  var dropdownData = [];*/
   /*$.ajax({
-    url: "https://www.envisionme.co.za/autocomplete_dropbox.json?vid="+vocabId,
+    url: "//www.envisionme.co.za/autocomplete_dropbox.json?vid="+vocabId,
     async: false,
     dataType: 'json',
     success: function (json) {
@@ -74,10 +74,10 @@ function getDropdownData(vocabId) {
         dropdownData[i] = innerArray;
       }
     }
-  });*/
+  });
 
-  return Drupal.settings.autocomplete_dropbox["a"+vocabId];
-}
+  //return Drupal.settings.autocomplete_dropbox["a"+vocabId];
+}*/
   
 /**
  * Get the term value by Id.
@@ -89,13 +89,13 @@ function getDropdownData(vocabId) {
  *
  * @return: The value of the term if it exists, oherwise returns false.
  */
-function getTermValue(termId, data) {
+/*function getTermValue(termId, data) {
   for (var k = 0; k < data.length; k++) {
     if( data[k]['id'] == termId )
       return data[k]['value'];
   }
   return false;
-}
+}*/
 
 var navigationIndex = 0;
 
@@ -109,8 +109,8 @@ $('.term-names-wrapper').each(function() {
       var termValue;
       if (ids[i].substr(0,1) == '#')
         termValue = ids[i].substr(3);
-      else
-        termValue = getTermValue(ids[i], getDropdownData($(this).parent().find('.vocab-id').html()));
+      //welse
+        //wtermValue = getTermValue(ids[i], getDropdownData($(this).parent().find('.vocab-id').html()));
 
       if (termValue)
         $(this).find('#entered-term-names-wrapper').append('<div class="entered-term-name"><div class="term-id">' + ids[i] + '</div>' + termValue + '<a class="close-entered-term-name">×</a></div>');
@@ -271,12 +271,12 @@ $(".term-names-wrapper").click(function(e) {
         var _this = $('.autocomplete-' + vocabId).find('.term-names-input');
 
         $.ajax({
-          url: "https://www.envisionme.co.za/autocomplete_dropbox.json?vid="+vocabId,
+          url: "//www.envisionme.co.za/autocomplete_dropbox.json?vid="+vocabId+"&term="+_this.val(),
           async: true,
           dataType: 'json',
           success: function (json) {
 
-            data = json;
+            var data = json;
             var dropdownData = new Array();
             for(var i in data) {
               var innerArray = new Array();
@@ -289,14 +289,14 @@ $(".term-names-wrapper").click(function(e) {
 
           _this.parent().parent().find('.dropdown-term-names').html('');
           _this.parent().parent().find('.dropdown-term-names').css('display', 'block');
-          _this.parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber-loading.gif)");
+          //_this.parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber-loading.gif)");
           var dropdownLength = dropdownData.length;
           var flag_dropdown_empty = true;
           for (var k = 0; k < dropdownLength; k++) {
             if((_this.val() != '') && (dropdownData[k]['value'].toUpperCase().indexOf(_this.val().toUpperCase(), 0) > -1)) {
               flag_dropdown_empty = false;
               _this.parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item' id='term-names-dropdown-item-0'><div class='term-id'>" + dropdownData[k]['id'] + "</div>" + dropdownData[k]['value'] + "</div>");
-              _this.parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
+              //_this.parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
             }
             else {
               navigationIndex = 0;
@@ -304,14 +304,14 @@ $(".term-names-wrapper").click(function(e) {
           }
           if (flag_dropdown_empty)
             _this.parent().parent().find('.dropdown-term-names').hide();
-          _this.parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
+          //_this.parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
 
 
 
 
 
 
-        /*_this.parent().parent().find(".term-names-dropdown-item").click(function() {
+        _this.parent().parent().find(".term-names-dropdown-item").click(function() {
           $(this).parent().parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'>" + $(this).html() + "<a class='close-entered-term-name'>×</a></div>");
           // Add the username to the original hidden input
           if ($(this).parent().parent().find('.form-text').val() == "")
@@ -327,9 +327,16 @@ $(".term-names-wrapper").click(function(e) {
           $(this).parent().parent().find(".dropdown-term-names").html('');
           $(this).parent().parent().find(".dropdown-term-names").hide();
           navigationIndex = 0;
-        });*/
+        });
 
 
+       ///Mouseover on dropdown items
+       _this.parent().parent().find(".term-names-dropdown-item").hover(function() {
+         $(this).css("background-color", "#ebeef0");
+       },
+       function() {
+         $(this).css("background-color", "white");
+       });
 
 
 
@@ -348,7 +355,7 @@ $(".term-names-wrapper").click(function(e) {
         /*$(this).parent().parent().find('.dropdown-term-names').html('');
         $(this).parent().parent().find('.dropdown-term-names').css('display', 'block');
         var vocabId = $(this).parent().parent().find(".vocab-id").html();
-        $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber-loading.gif)");
+        //$(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber-loading.gif)");
         var dropdownData = getDropdownData(vocabId);
         //console.log(dropdownData);
         var dropdownLength = dropdownData.length;
@@ -357,7 +364,7 @@ $(".term-names-wrapper").click(function(e) {
           if(($(this).val() != '') && (dropdownData[k]['value'].toUpperCase().indexOf($(this).val().toUpperCase(), 0) > -1)) {
             flag_dropdown_empty = false;
             $(this).parent().parent().find('.dropdown-term-names').append("<div class='term-names-dropdown-item' id='term-names-dropdown-item-0'><div class='term-id'>" + dropdownData[k]['id'] + "</div>" + dropdownData[k]['value'] + "</div>");
-            $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
+            //$(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");
           }
           else {
             navigationIndex = 0;
@@ -365,7 +372,7 @@ $(".term-names-wrapper").click(function(e) {
         }
         if (flag_dropdown_empty)
           $(this).parent().parent().find('.dropdown-term-names').hide();
-        $(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");*/
+        //$(this).parent().css("background-image", "url("+Drupal.settings['module_path']['0']+"/images/throbber.gif)");*/
       }
     }
 
