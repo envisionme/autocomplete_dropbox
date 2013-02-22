@@ -22,7 +22,19 @@ function autocomplete_dropbox_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK
   );
+  $items['autocomplete_dropbox_getterm.json'] = array(
+    'title' => 'Get Term',
+    'page callback' => 'autocomplete_dropbox_getterm',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
   return $items;
+}
+
+function autocomplete_dropbox_getterm() {
+  $term = taxonomy_get_term($_GET['tid']);
+  echo $term->name;
+  exit();
 }
 
 function autocomplete_dropbox_autosuggest() {

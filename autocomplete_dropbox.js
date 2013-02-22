@@ -89,13 +89,25 @@ try {
  *
  * @return: The value of the term if it exists, oherwise returns false.
  */
-/*function getTermValue(termId, data) {
-  for (var k = 0; k < data.length; k++) {
-    if( data[k]['id'] == termId )
-      return data[k]['value'];
-  }
-  return false;
-}*/
+function getTermValue(termId) {
+  var termName = '';
+  /*$.ajax({
+          url: "//www.envisionme.co.za/autocomplete_dropbox_getterm.json?tid=8234",
+          async: false,
+          dataType: 'json',
+          success: function (json) {
+            termName = json;
+         }
+  });*/
+  jQuery.ajax({
+         url:    '//www.envisionme.co.za/autocomplete_dropbox_getterm.json?tid=' + termId,
+         success: function(result) {
+                      termName = result;
+                  },
+         async:   false
+  });          
+  return termName;
+}
 
 var navigationIndex = 0;
 
@@ -109,8 +121,8 @@ $('.term-names-wrapper').each(function() {
       var termValue;
       if (ids[i].substr(0,1) == '#')
         termValue = ids[i].substr(3);
-      //welse
-        //wtermValue = getTermValue(ids[i], getDropdownData($(this).parent().find('.vocab-id').html()));
+      else
+        termValue = getTermValue(ids[i]);
 
       if (termValue)
         $(this).find('#entered-term-names-wrapper').append('<div class="entered-term-name"><div class="term-id">' + ids[i] + '</div>' + termValue + '<a class="close-entered-term-name">×</a></div>');
