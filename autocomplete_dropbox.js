@@ -39,45 +39,6 @@ try {
   $('.term-names-wrapper').tipsy({fade: true, gravity: $.fn.tipsy.autoWE, delayIn: 0, delayOut: 500, trigger: 'hover', opacity: 0.8, offset: 0, title: function() { return $(this).find('.description').html();},   html: 1});
 } catch(e) {}
 
-/*function getDropdownData(vocabId) {
-
-  var dropdownData = [];*/
-  /*$.ajax({
-    url: "//www.envisionme.co.za/autocomplete_dropbox.json?vid="+vocabId,
-    async: false,
-    dataType: 'json',
-    success: function (json) {
-      data = json;
-      dropdownData = new Array();
-      for(var i in data) {
-        var innerArray = new Array();
-        innerArray["id"] = data[i].tid;
-        innerArray["value"] = data[i].name;
-        dropdownData[i] = innerArray;
-      }
-    }
-  });
-
-  return dropdownData;*/
-
-  /*$.ajax({
-    url: "https://localhost:3000/" + vocabId + "/a",
-    async: false,
-    dataType: 'json',
-    success: function (json) {
-      data = json;
-      dropdownData = new Array();
-      for(var i in data) {
-        var innerArray = new Array();
-        innerArray["id"] = data[i].tid;
-        innerArray["value"] = data[i].name;
-        dropdownData[i] = innerArray;
-      }
-    }
-  });
-
-  //return Drupal.settings.autocomplete_dropbox["a"+vocabId];
-}*/
   
 /**
  * Get the term value by Id.
@@ -91,16 +52,18 @@ try {
  */
 function getTermValue(termId) {
   var termName = '';
-  /*$.ajax({
-          url: "//www.envisionme.co.za/autocomplete_dropbox_getterm.json?tid=8234",
-          async: false,
-          dataType: 'json',
-          success: function (json) {
-            termName = json;
-         }
-  });*/
+
+  if (document.URL.indexOf("dev.envisionme.co.za") > -1)
+    var base_url = "//dev.envisionme.co.za";
+  else if (document.URL.indexOf("envisionme.co.za") > -1)
+    var base_url = "//envisionme.co.za";
+  if (document.URL.indexOf("dev.nojoshmo.com") > -1)
+    var base_url = "//dev.nojoshmo.co.za";
+  else if (document.URL.indexOf("nojoshmo.com") > -1)
+    var base_url = "//nojoshmo.co.za";
+
   jQuery.ajax({
-         url:    '//www.envisionme.co.za/autocomplete_dropbox_getterm.json?tid=' + termId,
+         url:    base_url+'/autocomplete_dropbox_getterm.json?tid=' + termId,
          success: function(result) {
                       termName = result;
                   },
@@ -282,8 +245,17 @@ $(".term-names-wrapper").click(function(e) {
         var domcontainer = $('.autocomplete-' + vocabId);
         var _this = $('.autocomplete-' + vocabId).find('.term-names-input');
 
+        if (document.URL.indexOf("dev.envisionme.co.za") > -1)
+          var base_url = "//dev.envisionme.co.za";
+        else if (document.URL.indexOf("envisionme.co.za") > -1)
+          var base_url = "//envisionme.co.za";
+        if (document.URL.indexOf("dev.nojoshmo.com") > -1)
+          var base_url = "//dev.nojoshmo.com";
+        else if (document.URL.indexOf("nojoshmo.com") > -1)
+          var base_url = "//nojoshmo.com";
+
         $.ajax({
-          url: "//www.envisionme.co.za/autocomplete_dropbox.json?vid="+vocabId+"&term="+_this.val(),
+          url: base_url+"/autocomplete_dropbox.json?vid="+vocabId+"&term="+_this.val(),
           async: true,
           dataType: 'json',
           success: function (json) {
@@ -296,6 +268,7 @@ $(".term-names-wrapper").click(function(e) {
               innerArray["value"] = data[i].name;
               dropdownData[i] = innerArray;
             }
+            //alert(document.URL);
 
            //******
 
