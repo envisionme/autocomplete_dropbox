@@ -39,7 +39,7 @@ try {
   $('.term-names-wrapper').tipsy({fade: true, gravity: $.fn.tipsy.autoWE, delayIn: 0, delayOut: 500, trigger: 'hover', opacity: 0.8, offset: 0, title: function() { return $(this).find('.description').html();},   html: 1});
 } catch(e) {}
 
-  
+
 /**
  * Get the term value by Id.
  *
@@ -52,23 +52,13 @@ try {
  */
 function getTermValue(termId) {
   var termName = '';
-
-  if (document.URL.indexOf("dev.envisionme.co.za") > -1)
-    var base_url = "//dev.envisionme.co.za";
-  else if (document.URL.indexOf("envisionme.co.za") > -1)
-    var base_url = "//envisionme.co.za";
-  if (document.URL.indexOf("dev.nojoshmo.com") > -1)
-    var base_url = "//dev.nojoshmo.co.za";
-  else if (document.URL.indexOf("nojoshmo.com") > -1)
-    var base_url = "//nojoshmo.co.za";
-
   jQuery.ajax({
-         url:    base_url+'/autocomplete_dropbox_getterm.json?tid=' + termId,
-         success: function(result) {
-                      termName = result;
-                  },
-         async:   false
-  });          
+    url: Drupal.settings.basePath + 'autocomplete_dropbox_getterm.json?tid=' + termId,
+    success: function(result) {
+      termName = result;
+    },
+    async:   false
+  });
   return termName;
 }
 
@@ -245,17 +235,8 @@ $(".term-names-wrapper").click(function(e) {
         var domcontainer = $('.autocomplete-' + vocabId);
         var _this = $('.autocomplete-' + vocabId).find('.term-names-input');
 
-        if (document.URL.indexOf("dev.envisionme.co.za") > -1)
-          var base_url = "//dev.envisionme.co.za";
-        else if (document.URL.indexOf("envisionme.co.za") > -1)
-          var base_url = "//envisionme.co.za";
-        if (document.URL.indexOf("dev.nojoshmo.com") > -1)
-          var base_url = "//dev.nojoshmo.com";
-        else if (document.URL.indexOf("nojoshmo.com") > -1)
-          var base_url = "//nojoshmo.com";
-
         $.ajax({
-          url: base_url+"/autocomplete_dropbox.json?vid="+vocabId+"&term="+_this.val(),
+          url: Drupal.settings.basePath + "autocomplete_dropbox.json?vid=" + vocabId + "&term=" + _this.val(),
           async: true,
           dataType: 'json',
           success: function (json) {
