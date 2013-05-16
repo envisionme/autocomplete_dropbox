@@ -168,8 +168,10 @@ function autocomplete_dropbox_field($op, &$node, $field, &$items, $teaser, $page
 function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
   $term_ids = explode(',', $item['term_ids']);
   $array_to_save = array();
-  //$node->taxonomy[$field['vocabulary_id']] = '';
+  
   $taxonomy_array = array();
+  $taxonomy_array2 = array();
+  
   foreach ($node->taxonomy as $term) {
     if(is_object($term)) {
       if($term->vid == $field['vocabulary_id']) {
@@ -177,32 +179,49 @@ function _autocomplete_dropbox_process(&$item, $delta = 0, $field, $node) {
       }
       else {
         $taxonomy_array[$term->tid] = $term;
+        if($term->vid != '')
+          $taxonomy_array2[$term->vid] = array('0' => $term->tid);
       }
     }
     else {
-      $taxonomy_array[$term->tid] = $term;
+      if (isset($term[0])) {
+        $tax_term = taxonomy_get_term($term[0]);
+        $taxonomy_array2[$tax_term->vid] = $term;
+      }
     }
   }
-  $node->taxonomy = $taxonomy_array;
 
+  //$node->taxonomy = $taxonomy_array2;//--
+  //watchdog('Debug Terms', print_r($taxonomy_array2, true));
+  
+  $terms_array = array();
+  $count = 0;
+  //watchdog('Term IDs debug', print_r($term_ids, true));
   foreach($term_ids as $term_id) {
     if(is_numeric($term_id)) {
       $array_to_save[] = $term_id;
       $taxonomy_term = taxonomy_get_term($term_id);
-      $node->taxonomy[$taxonomy_term->tid] = $taxonomy_term;
+      //--$node->taxonomy[$taxonomy_term->tid] = $taxonomy_term;
+      $terms_array[$count] = $taxonomy_term->tid;
     }
- else {
+    else {
       if(strlen($term_id) > 3) {
         $newterm = array('vid' => $field['vocabulary_id'], 'name' => substr($term_id, 3));
         taxonomy_save_term($newterm);
         $terms = taxonomy_get_term_by_name(substr($term_id, 3));
         $term = array_shift($terms);
-        $node->taxonomy[$term->tid] = $term;
+        //--$node->taxonomy[$term->tid] = $term;
+        $terms_array[$count] = $term->tid;
         $array_to_save[] = $term->tid;
       }
     }
+    $count++;
   }
-
+  if (sizeof($terms_array) > 0)
+    $taxonomy_array2[$field['vocabulary_id']] = $terms_array;
+  //watchdog('Debug Terms - Terms array', print_r($taxonomy_array2, true));
+  $node->taxonomy = $taxonomy_array2;
+  
   $item['term_ids'] = implode(',', $array_to_save);
 }
 /**
