@@ -153,10 +153,11 @@ $(".term-names-wrapper").click(function(e) {
             currentDropdownItems.push($(this).html().substring($(this).html().indexOf('</div>') + 6 ).toUpperCase());
           });
           var inDropdown = jQuery.inArray($(this).val().toUpperCase(), currentDropdownItems);
-          console.log($(this).val());
-          console.log(currentDropdownItems);
-          console.log(inDropdown);
-          if ($(this).parent().parent().find(".dropdown-term-names").css('display') == 'none' || inDropdown == -1 ) {
+          //console.log($(this).val());
+          //console.log(currentDropdownItems);
+          //console.log(inDropdown);
+          var vocabId = $(this).parent().parent().find('.vocab-id').html();
+          if ( ($(this).parent().parent().find(".dropdown-term-names").css('display') == 'none' || inDropdown == -1) && vocabId != '28' ) {
             $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'><div class='new-item' style='display: inline;'>" + $(this).val() + "</div><a class='close-entered-term-name'>×</a></div>");
             $(this).parent().parent().find('.terms-count .entered').html($(this).parent().find('#entered-term-names-wrapper').children().length);
             if ($(this).parent().parent().find('.form-text').val() == "")
@@ -193,10 +194,11 @@ $(".term-names-wrapper").click(function(e) {
             currentDropdownItems.push($(this).html().substring($(this).html().indexOf('</div>') + 6 ).toUpperCase());
           });
           var inDropdown = jQuery.inArray($(this).val().toUpperCase(), currentDropdownItems);
-          console.log($(this).val());
-          console.log(currentDropdownItems);
-          console.log(inDropdown);
-          if ($(this).parent().parent().find(".dropdown-term-names").css('display') == 'none' || inDropdown == -1 ) {
+          //console.log($(this).val());
+          //console.log(currentDropdownItems);
+          //console.log(inDropdown);
+          var vocabId = $(this).parent().parent().find('.vocab-id').html();
+          if ( ($(this).parent().parent().find(".dropdown-term-names").css('display') == 'none' || inDropdown == -1) && vocabId != '28' ) {
             $(this).parent().find("#entered-term-names-wrapper").append("<div class='entered-term-name'><div class='new-item' style='display: inline;'>" + $(this).val() + "</div><a class='close-entered-term-name'>×</a></div>");
             $(this).parent().parent().find('.terms-count .entered').html($(this).parent().find('#entered-term-names-wrapper').children().length);
             if ($(this).parent().parent().find('.form-text').val() == "")
