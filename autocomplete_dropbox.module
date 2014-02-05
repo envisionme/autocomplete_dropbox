@@ -33,7 +33,8 @@ function autocomplete_dropbox_menu() {
 
 function autocomplete_dropbox_getterm() {
   $term = taxonomy_get_term($_GET['tid']);
-  echo $term->name;
+  if ( is_object($term) )
+    echo $term->name;
   exit();
 }
 
